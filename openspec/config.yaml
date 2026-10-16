@@ -1,0 +1,50 @@
+schema: spec-driven
+
+context: |
+  PROJET
+  Boutique en ligne de produits artisanaux.
+  Les specs, les commentaires et les textes de l'interface sont en français.
+
+  STACK
+  - Angular (dernière version) : composants standalone, signals, routing avec lazy loading
+  - Formulaires réactifs (Reactive Forms) avec validation
+  - Fausse API au début : json-server + json-server-auth (jetons JWT simulés)
+  - Tests : un test par scénario de spec
+
+  RÔLES
+  - Visiteur : consulte le catalogue et remplit son panier, sans compte
+  - Client : compte obligatoire pour passer commande, voit ses commandes et son historique
+  - Vendeur : gère ses propres produits (CRUD) et voit les commandes de ses produits
+  - Administrateur : gère tout le site depuis le panel /admin
+
+  RÈGLES MÉTIER
+  - Le panier est gardé dans le navigateur, même sans compte
+  - Au moment de commander, un visiteur non connecté est redirigé vers la connexion,
+    puis renvoyé à la commande avec son panier intact
+  - Un vendeur ne peut modifier que ses propres produits
+  - Un nouveau vendeur doit être validé par un administrateur
+
+  CONVENTION CRUD (à appliquer partout)
+  - Liste : tableau avec recherche, tri et pagination
+  - Création et modification : même formulaire, avec validation et messages d'erreur clairs
+  - Suppression : toujours une confirmation avant
+  - Après chaque action : message de succès ou d'erreur
+  - Un service Angular par entité (ProduitService, CommandeService, etc.)
+
+  ORGANISATION DU CODE
+  - src/app/core : authentification, guards, intercepteurs, services globaux
+  - src/app/shared : composants réutilisables (tableau, formulaire, confirmation)
+  - src/app/features : catalogue, panier, commande, compte, vendeur, admin
+
+rules:
+  proposal:
+    - Toujours préciser une section "Hors périmètre"
+    - Indiquer quels rôles sont concernés par le changement
+  specs:
+    - Chaque exigence a au moins un scénario GIVEN/WHEN/THEN
+    - Pour chaque écran protégé, ajouter un scénario "accès refusé" pour les rôles non autorisés
+  design:
+    - Expliquer les routes, les guards et les services créés ou modifiés
+  tasks:
+    - Chaque tâche est petite et testable
+    - Terminer par une tâche "écrire les tests des scénarios"
