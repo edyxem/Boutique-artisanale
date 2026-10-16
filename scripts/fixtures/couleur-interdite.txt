@@ -1,0 +1,1 @@
+class="text-[#ff0000]" style="color: #ff0000"

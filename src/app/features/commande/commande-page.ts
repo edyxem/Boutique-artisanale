@@ -3,8 +3,11 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-commande-page',
   template: `
-    <h1 class="mb-4 text-3xl font-bold text-stone-900">Commande</h1>
-    <p class="text-stone-700">Cette section sera disponible prochainement.</p>
+    <section class="mx-auto max-w-7xl px-4 py-14 md:py-20">
+      <p class="text-eyebrow text-muted">Flowering</p>
+      <h1 class="mt-2">Commande</h1>
+      <p class="mt-4 text-muted">Cette section sera disponible prochainement.</p>
+    </section>
   `,
 })
 export class CommandePage {}

@@ -1,0 +1,50 @@
+/* Styles de base du template Flowering. */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: calc(var(--spacing) * 20);
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-weight: 400;
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-titre);
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-size: var(--text-h1);
+  }
+
+  h2 {
+    font-size: var(--text-h2);
+  }
+
+  h3 {
+    font-size: var(--text-h3);
+    font-weight: 500;
+    letter-spacing: normal;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-candy);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-mint-strong);
+    color: var(--color-ink);
+  }
+}

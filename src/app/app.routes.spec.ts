@@ -39,7 +39,7 @@ describe('Routes de l\'application', () => {
       const element = await naviguer(url);
 
       expect(element.querySelector('main h1')?.textContent?.trim()).toBe(titre);
-      expect(TestBed.inject(Title).getTitle()).toBe(`${titre} | FLOWERING`);
+      expect(TestBed.inject(Title).getTitle()).toBe(`${titre} | Flowering`);
     });
   }
 
@@ -78,7 +78,7 @@ describe('Routes de l\'application', () => {
   it('ramène au catalogue via le nom de la boutique', async () => {
     const element = await naviguer('/admin');
     const nom = element.querySelector<HTMLAnchorElement>('header a');
-    expect(nom?.textContent?.trim()).toBe('FLOWERING');
+    expect(nom?.getAttribute('aria-label')).toBe('Flowering, accueil');
 
     nom?.click();
     await fixture.whenStable();

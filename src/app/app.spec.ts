@@ -25,7 +25,7 @@ describe('Layout (App)', () => {
 
   it('affiche le nom de la boutique et une mention de copyright dans le pied de page', () => {
     const texte = element.querySelector('footer')?.textContent ?? '';
-    expect(texte).toContain('FLOWERING');
+    expect(texte).toContain('Flowering');
     expect(texte).toContain('©');
   });
 

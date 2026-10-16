@@ -1,3 +1,8 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+@import './styles/jetons.css';
+@import './styles/base.css';
+@import './styles/animations.css';
+
+/* La maquette et les plans OpenSpec ne sont pas des sources de classes. */
+@source not '../design-template';
+@source not '../openspec';

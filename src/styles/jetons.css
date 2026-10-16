@@ -1,0 +1,158 @@
+/* Jetons du design Flowering (design-template/DESIGN.md). Seules ces valeurs sont autorisées. */
+
+:root {
+  --bg: #ffffff;
+  --soft: #f4f6f3;
+  --ink: #15261c;
+  --muted: #66746b;
+  --line: #e5e9e4;
+  --forest: #173a29;
+  --forest-ink: #f3f8f4;
+  --mint: #dcefe2;
+  --mint-strong: #b9e0c6;
+  --candy: #f6a9c5;
+  --candy-soft: #fde4ee;
+  --ok: #2f7a4a;
+  --warn: #b5761a;
+  --bad: #c3405c;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0f1512;
+    --soft: #151d18;
+    --ink: #eaf1ec;
+    --muted: #9aa89f;
+    --line: #24302a;
+    --forest: #1b4430;
+    --forest-ink: #f3f8f4;
+    --mint: #1a2e22;
+    --mint-strong: #2a4a36;
+    --candy: #f39abb;
+    --candy-soft: #3a2230;
+    --ok: #86cf9b;
+    --warn: #e7b25a;
+    --bad: #f18aa2;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #0f1512;
+  --soft: #151d18;
+  --ink: #eaf1ec;
+  --muted: #9aa89f;
+  --line: #24302a;
+  --forest: #1b4430;
+  --forest-ink: #f3f8f4;
+  --mint: #1a2e22;
+  --mint-strong: #2a4a36;
+  --candy: #f39abb;
+  --candy-soft: #3a2230;
+  --ok: #86cf9b;
+  --warn: #e7b25a;
+  --bad: #f18aa2;
+  color-scheme: dark;
+}
+
+@theme {
+  /* Couleurs : la palette Tailwind par défaut est supprimée. */
+  --color-*: initial;
+  --color-bg: var(--bg);
+  --color-soft: var(--soft);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-forest: var(--forest);
+  --color-forest-ink: var(--forest-ink);
+  --color-mint: var(--mint);
+  --color-mint-strong: var(--mint-strong);
+  --color-candy: var(--candy);
+  --color-candy-soft: var(--candy-soft);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  /* Couleurs fixes autorisées par DESIGN.md (texte et boutons posés sur les photos). */
+  --color-white: #ffffff;
+  --color-photo-ink: #15261c;
+  --color-voile: rgb(10 22 15 / 0.35);
+  --color-voile-leger: rgb(10 22 15 / 0.25);
+  --color-voile-fort: rgb(10 22 15 / 0.7);
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Points de rupture du template, du mobile vers le bureau. */
+  --breakpoint-*: initial;
+  --breakpoint-sm: 30rem;
+  --breakpoint-md: 51.25rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+
+  /* Arrondis. */
+  --radius-*: initial;
+  --radius-mini: 10px;
+  --radius-champ: 12px;
+  --radius-ligne: 14px;
+  --radius-vignette: 16px;
+  --radius-photo: 20px;
+  --radius-carte: 22px;
+  --radius-bloc: 28px;
+
+  /* Aucune ombre portée dans le template. */
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+
+  /* Police unique. */
+  --font-*: initial;
+  --font-sans: 'Geist', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Échelle typographique du template. */
+  --text-*: initial;
+  --text-badge: 0.7rem;
+  --text-eyebrow: 0.78rem;
+  --text-sm: 0.84rem;
+  --text-nav: 0.86rem;
+  --text-bouton: 0.9rem;
+  --text-base: 0.9375rem;
+  --text-base--line-height: 1.55;
+  --text-h3: 1.05rem;
+  --text-logo: 1.35rem;
+  --text-mnav: 1.6rem;
+  --text-prix: 1.8rem;
+  --text-stat: 2rem;
+  --text-h2: clamp(1.9rem, 3.4vw, 2.8rem);
+  --text-grand: clamp(1.9rem, 4.2vw, 3.5rem);
+  --text-h1: clamp(2.2rem, 4.5vw, 3.4rem);
+  --text-montant: clamp(2.6rem, 6vw, 3.6rem);
+  --text-hero: clamp(2.6rem, 5.4vw, 4.4rem);
+  --text-chiffre: clamp(4.5rem, 10vw, 8rem);
+
+  --leading-titre: 1.05;
+  --leading-grand: 1.12;
+
+  /* Dimensions propres au template. */
+  --container-tiroir: 26.25rem;
+  --container-modale: 58.75rem;
+  --container-grand: 20ch;
+  --spacing-hero: min(86vh, 760px);
+  --spacing-zone-sure: env(safe-area-inset-bottom, 0px);
+  --aspect-portrait: 4 / 5;
+  --aspect-photo: 4 / 3;
+
+  /* Mouvement. */
+  --ease-flowering: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-tremble: tremble 300ms ease-in-out 1;
+  --animate-pop: pop 300ms var(--ease-flowering) 1;
+  --animate-entree: entree 300ms var(--ease-flowering) both;
+  --animate-sortie: sortie 200ms ease-in both;
+  --animate-entree-bas: entree-bas 300ms var(--ease-flowering) both;
+  --animate-sortie-bas: sortie-bas 200ms ease-in both;
+  --animate-entree-droite: entree-droite 300ms var(--ease-flowering) both;
+  --animate-sortie-droite: sortie-droite 250ms ease-in both;
+  --animate-fondu: fondu 300ms ease-out both;
+  --animate-fondu-sortie: fondu-sortie 200ms ease-in both;
+  --animate-croix-haut: croix-haut 300ms var(--ease-flowering) both;
+  --animate-croix-bas: croix-bas 300ms var(--ease-flowering) both;
+}

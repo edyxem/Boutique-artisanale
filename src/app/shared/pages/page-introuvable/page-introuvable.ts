@@ -1,18 +1,17 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { UiBouton } from '../../ui';
 
 @Component({
   selector: 'app-page-introuvable',
-  imports: [RouterLink],
+  imports: [RouterLink, UiBouton],
   template: `
-    <h1 class="mb-4 text-3xl font-bold text-stone-900">Page introuvable</h1>
-    <p class="mb-6 text-stone-700">La page que vous cherchez n'existe pas ou a été déplacée.</p>
-    <a
-      routerLink="/catalogue"
-      class="font-semibold text-emerald-800 underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
-    >
-      Retour au catalogue
-    </a>
+    <section class="mx-auto flex max-w-7xl flex-col items-start gap-5 px-4 py-14 md:py-20">
+      <p class="text-eyebrow text-muted">Erreur 404</p>
+      <h1>Page introuvable</h1>
+      <p class="text-muted">La page que vous cherchez n'existe pas ou a été déplacée.</p>
+      <a uiBouton routerLink="/catalogue">Retour au catalogue</a>
+    </section>
   `,
 })
 export class PageIntrouvable {}

@@ -8,7 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "api": "json-server-auth db.json --port 3000",
-    "dev": "concurrently -k -n api,web -c blue,green \"npm:api\" \"npm:start\""
+    "dev": "concurrently -k -n api,web -c blue,green \"npm:api\" \"npm:start\"",
+    "verifier:couleurs": "node scripts/verifier-couleurs.mjs"
   },
   "private": true,
   "packageManager": "npm@11.19.1",
