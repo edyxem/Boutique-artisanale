@@ -1,0 +1,5 @@
+- `template.html` : maquette de référence complète et autonome (HTML, CSS et JS vanilla) ; ouvrez-la dans un navigateur pour voir chaque page et interaction à reproduire en composants Angular.
+- `images/` : toutes les photos du template avec des noms explicites (`hero-accueil.jpg`, `produit-*.jpg`, `categorie-*.jpg`…) ; à copier dans `public/` ou `src/assets/`.
+- `captures/` : une capture de chaque page et section, en version bureau (1440px) et mobile (390px), à utiliser comme cible visuelle.
+- `DESIGN.md` : la spécification à suivre : couleurs, police Geist, tailles, espacements, arrondis, icônes, composants, routes Angular de chaque page et interactions existantes.
+- Pages absentes du template (commande, espace vendeur) : elles sont signalées dans `DESIGN.md`. Créez-les avec les mêmes composants et variables CSS.

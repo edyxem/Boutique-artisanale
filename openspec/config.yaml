@@ -36,6 +36,24 @@ context: |
   - src/app/shared : composants réutilisables (tableau, formulaire, confirmation)
   - src/app/features : catalogue, panier, commande, compte, vendeur, admin
 
+  STYLE
+  - Tailwind CSS v4 : configuration dans styles.css avec @theme (pas de tailwind.config.js)
+  - Les couleurs, polices, arrondis et ombres du template sont définis dans @theme
+  - Classes utilitaires directement dans les templates Angular, @apply seulement en dernier recours
+  - Pas de PrimeNG : tableaux, fenêtres modales et toasts sont des composants maison de src/app/shared/ui
+  - Aucune valeur en dur (couleur, police, arrondi, ombre, taille arbitraire) : uniquement les jetons de @theme
+  - Classes Tailwind complètes dans les templates, jamais de noms de classes concaténés
+  - Mobile d'abord : styles de base pour le mobile, puis sm:, md:, lg:
+  - Animations courtes (200 à 300 ms) avec les utilitaires Tailwind, toujours sous motion-safe:
+
+  DESIGN
+  - Toutes les interfaces suivent design-template/DESIGN.md : c'est LE design du site, pas une inspiration
+  - Référence visuelle : design-template/template.html et les captures de design-template/captures/ (bureau 1440px, mobile 390px)
+  - Seules les images de design-template/images/ sont utilisées (servies depuis /images/), aucune image externe
+  - Les pages absentes du template (commande, espace vendeur, pages admin supplémentaires) reprennent ses composants et sa mise en page
+  - Toujours passer par les composants partagés de src/app/shared/ui (boutons, badges, champs, toasts, modale, tiroir, tableau…) plutôt que de recopier des classes
+  - Animations fluides (opacité et transformations), désactivées avec prefers-reduced-motion
+
 rules:
   proposal:
     - Toujours préciser une section "Hors périmètre"

@@ -1,0 +1,174 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "nom": "Mariam Diallo",
+      "email": "admin@boutique.fr",
+      "password": "$2a$10$rJezt/kpOyxiZ.ZdCcByo.bw5iJlqYg4LUFIek.SbuxU88oKS3bIm",
+      "role": "admin",
+      "actif": true
+    },
+    {
+      "id": 2,
+      "nom": "Lucas Martin",
+      "email": "client@boutique.fr",
+      "password": "$2a$10$SV2E5YOxHpFZnh7Ch5g4h.1kAca8bXif2qoGwdQJTlnLN3uqnsgoy",
+      "role": "client",
+      "actif": true
+    },
+    {
+      "id": 3,
+      "nom": "Claire Fontaine",
+      "email": "vendeur1@boutique.fr",
+      "password": "$2a$10$L8f0mnXAUvoaJ/B0aZnsxeqVujlBSWidpxKOChMdndEpkIsh1NHXu",
+      "role": "vendeur",
+      "actif": true
+    },
+    {
+      "id": 4,
+      "nom": "Yao Kouassi",
+      "email": "vendeur2@boutique.fr",
+      "password": "$2a$10$L8f0mnXAUvoaJ/B0aZnsxeqVujlBSWidpxKOChMdndEpkIsh1NHXu",
+      "role": "vendeur",
+      "actif": true
+    }
+  ],
+  "vendeurs": [
+    {
+      "id": 1,
+      "utilisateurId": 3,
+      "nomBoutique": "L'Atelier de la Poterie",
+      "description": "Céramiques tournées et émaillées à la main dans un petit atelier de Bourgogne.",
+      "statut": "valide"
+    },
+    {
+      "id": 2,
+      "utilisateurId": 4,
+      "nomBoutique": "Bois & Merveilles",
+      "description": "Objets en bois massif sculptés et tissages traditionnels.",
+      "statut": "en_attente"
+    }
+  ],
+  "categories": [
+    { "id": 1, "nom": "Céramique", "slug": "ceramique" },
+    { "id": 2, "nom": "Bois", "slug": "bois" },
+    { "id": 3, "nom": "Textile", "slug": "textile" },
+    { "id": 4, "nom": "Bijoux", "slug": "bijoux" }
+  ],
+  "produits": [
+    {
+      "id": 1,
+      "nom": "Bol en grès émaillé",
+      "description": "Bol tourné à la main, émail bleu profond, passe au lave-vaisselle.",
+      "prix": 28,
+      "stock": 12,
+      "images": ["https://picsum.photos/seed/bol-gres-emaille/600/400"],
+      "categorieId": 1,
+      "vendeurId": 1,
+      "actif": true
+    },
+    {
+      "id": 2,
+      "nom": "Vase en terre cuite",
+      "description": "Vase de 30 cm en terre cuite naturelle, finition brute.",
+      "prix": 45,
+      "stock": 5,
+      "images": ["https://picsum.photos/seed/vase-terre-cuite/600/400"],
+      "categorieId": 1,
+      "vendeurId": 1,
+      "actif": true
+    },
+    {
+      "id": 3,
+      "nom": "Service à thé en porcelaine",
+      "description": "Théière et quatre tasses en porcelaine fine, décor peint à la main.",
+      "prix": 120,
+      "stock": 0,
+      "images": [
+        "https://picsum.photos/seed/service-the-porcelaine/600/400",
+        "https://picsum.photos/seed/service-the-porcelaine-2/600/400"
+      ],
+      "categorieId": 1,
+      "vendeurId": 1,
+      "actif": true
+    },
+    {
+      "id": 4,
+      "nom": "Planche à découper en noyer",
+      "description": "Planche en noyer massif huilée, 40 x 25 cm.",
+      "prix": 39.9,
+      "stock": 20,
+      "images": ["https://picsum.photos/seed/planche-noyer/600/400"],
+      "categorieId": 2,
+      "vendeurId": 2,
+      "actif": true
+    },
+    {
+      "id": 5,
+      "nom": "Cuillères en olivier",
+      "description": "Lot de trois cuillères sculptées dans du bois d'olivier.",
+      "prix": 24.5,
+      "stock": 30,
+      "images": ["https://picsum.photos/seed/cuilleres-olivier/600/400"],
+      "categorieId": 2,
+      "vendeurId": 2,
+      "actif": true
+    },
+    {
+      "id": 6,
+      "nom": "Boîte à bijoux marquetée",
+      "description": "Boîte en chêne et érable, marqueterie géométrique.",
+      "prix": 65,
+      "stock": 3,
+      "images": ["https://picsum.photos/seed/boite-marquetee/600/400"],
+      "categorieId": 2,
+      "vendeurId": 2,
+      "actif": false
+    },
+    {
+      "id": 7,
+      "nom": "Plaid en laine tissé main",
+      "description": "Plaid 130 x 170 cm en laine des Pyrénées, tissé sur métier traditionnel.",
+      "prix": 89,
+      "stock": 7,
+      "images": ["https://picsum.photos/seed/plaid-laine/600/400"],
+      "categorieId": 3,
+      "vendeurId": 2,
+      "actif": true
+    },
+    {
+      "id": 8,
+      "nom": "Torchons en lin brodés",
+      "description": "Lot de deux torchons en lin lavé, broderie florale.",
+      "prix": 32,
+      "stock": 15,
+      "images": ["https://picsum.photos/seed/torchons-lin/600/400"],
+      "categorieId": 3,
+      "vendeurId": 1,
+      "actif": true
+    },
+    {
+      "id": 9,
+      "nom": "Boucles d'oreilles en céramique",
+      "description": "Boucles d'oreilles légères en porcelaine émaillée, crochets en argent.",
+      "prix": 22,
+      "stock": 25,
+      "images": ["https://picsum.photos/seed/boucles-ceramique/600/400"],
+      "categorieId": 4,
+      "vendeurId": 1,
+      "actif": true
+    },
+    {
+      "id": 10,
+      "nom": "Bracelet en bois d'ébène",
+      "description": "Bracelet jonc en ébène poli, diamètre 6,5 cm.",
+      "prix": 35,
+      "stock": 9,
+      "images": ["https://picsum.photos/seed/bracelet-ebene/600/400"],
+      "categorieId": 4,
+      "vendeurId": 2,
+      "actif": true
+    }
+  ],
+  "commandes": []
+}

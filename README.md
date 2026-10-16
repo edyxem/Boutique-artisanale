@@ -1,59 +1,55 @@
-# BoutiqueArtisanale
+# FLOWERING — boutique artisanale
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.3.
+Boutique en ligne de produits artisanaux, développée avec Angular 22 et une fausse API json-server.
 
-## Development server
+## Prérequis
 
-To start a local development server, run:
+- Node.js et npm
+- Installer les dépendances : `npm install`
 
-```bash
-ng serve
-```
+## Lancer le projet
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+| Commande | Effet |
+| --- | --- |
+| `npm run dev` | Lance l'API simulée **et** Angular ensemble (Ctrl+C arrête les deux) |
+| `npm run api` | Lance seulement l'API simulée sur <http://localhost:3000> |
+| `npm start` | Lance seulement Angular sur <http://localhost:4200> |
 
-## Code scaffolding
+## API simulée
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+L'API est fournie par [json-server](https://github.com/typicode/json-server) 0.17 et [json-server-auth](https://github.com/jeremyben/json-server-auth), à partir du fichier `db.json`.
 
-```bash
-ng generate component component-name
-```
+Ressources : `/users`, `/vendeurs`, `/categories`, `/produits`, `/commandes`.
+Authentification : `POST /register` et `POST /login` (jeton JWT simulé).
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### Comptes de démonstration
 
-```bash
-ng generate --help
-```
+| Rôle | Email | Mot de passe |
+| --- | --- | --- |
+| Administrateur | `admin@boutique.fr` | `Admin123!` |
+| Client | `client@boutique.fr` | `Client123!` |
+| Vendeur (boutique validée) | `vendeur1@boutique.fr` | `Vendeur123!` |
+| Vendeur (boutique en attente) | `vendeur2@boutique.fr` | `Vendeur123!` |
 
-## Building
+Les mots de passe sont stockés hachés (bcrypt) dans `db.json`.
 
-To build the project run:
+### Restaurer les données d'exemple
 
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+json-server réécrit `db.json` à chaque création, modification ou suppression. Pour revenir aux données d'origine :
 
 ```bash
-ng test
+git checkout db.json
 ```
 
-## Running end-to-end tests
+## Organisation du code
 
-For end-to-end (e2e) testing, run:
+- `src/app/core` : layout, modèles, configuration et services globaux
+- `src/app/shared` : composants et pages réutilisables
+- `src/app/features` : une section par fonctionnalité (catalogue, panier, commande, compte, vendeur, admin)
+
+## Tests et build
 
 ```bash
-ng e2e
+npm test         # tests unitaires (Vitest)
+npx ng build     # build de production dans dist/
 ```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
