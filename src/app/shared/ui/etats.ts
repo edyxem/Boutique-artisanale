@@ -14,7 +14,6 @@ import { UiCompteur } from '../animations/compteur';
         [routerLink]="cible"
         [queryParams]="parametres()"
         class="flex h-full flex-col gap-1 rounded-carte bg-soft p-5 text-ink hover:ring-1 hover:ring-inset hover:ring-line group-first/tuile:bg-forest group-first/tuile:text-forest-ink motion-safe:transition-shadow motion-safe:duration-200"
-        [attr.aria-label]="libelle() + ' : ' + valeur() + ' ' + sousTexte()"
       >
         <span class="text-sm opacity-80">{{ libelle() }}</span>
         <span class="text-stat font-light tabular-nums" uiCompteur [valeur]="valeurNumerique()" [format]="format()"></span>

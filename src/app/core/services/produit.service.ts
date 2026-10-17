@@ -7,6 +7,15 @@ import { CategorieService } from './categorie.service';
 import { VendeurService } from './vendeur.service';
 import { estVisible } from './visibilite';
 
+/** Produit de la gestion (vendeur, administration) : visible ou non, avec catégorie et boutique. */
+export interface ProduitGestion extends Produit {
+  categorie: Categorie | null;
+  vendeur: Vendeur | null;
+}
+
+/** Données d'un produit créé ou modifié. */
+export type DonneesProduit = Omit<Produit, 'id'>;
+
 /** Produit prêt à afficher, avec sa catégorie et sa boutique. */
 export interface ProduitAffiche extends Produit {
   categorie: Categorie | null;
@@ -42,6 +51,41 @@ export class ProduitService {
   /** Un produit visible, ou `null` s'il n'existe pas ou n'est pas en vente. */
   trouverVisible(id: number): Observable<ProduitAffiche | null> {
     return this.listerVisibles().pipe(map((produits) => produits.find((p) => p.id === id) ?? null));
+  }
+
+  /** Tous les produits (ou ceux d'une boutique), visibles ou non, avec catégorie et boutique. */
+  listerTous(vendeurId?: number): Observable<ProduitGestion[]> {
+    const params: Record<string, string> = vendeurId === undefined ? { _sort: 'id' } : { _sort: 'id', vendeurId: String(vendeurId) };
+    return forkJoin({
+      produits: this.http.get<Produit[]>(`${this.api}/produits`, { params }),
+      categories: this.categories.lister(),
+      vendeurs: this.http.get<Vendeur[]>(`${this.api}/vendeurs`),
+    }).pipe(
+      map(({ produits, categories, vendeurs }) =>
+        produits.map((produit) => ({
+          ...produit,
+          categorie: categories.find((c) => c.id === produit.categorieId) ?? null,
+          vendeur: vendeurs.find((v) => v.id === produit.vendeurId) ?? null,
+        })),
+      ),
+    );
+  }
+
+  /** Un produit quelconque, ou `null` s'il n'existe pas. */
+  trouver(id: number): Observable<Produit | null> {
+    return this.http.get<Produit>(`${this.api}/produits/${id}`).pipe(catchError(() => of(null)));
+  }
+
+  creer(donnees: DonneesProduit): Observable<Produit> {
+    return this.http.post<Produit>(`${this.api}/produits`, donnees);
+  }
+
+  modifier(id: number, donnees: Partial<DonneesProduit>): Observable<Produit> {
+    return this.http.patch<Produit>(`${this.api}/produits/${id}`, donnees);
+  }
+
+  supprimer(id: number): Observable<unknown> {
+    return this.http.delete(`${this.api}/produits/${id}`);
   }
 
   /** Produits par identifiants, visibles ou non (vignettes des commandes passées). */

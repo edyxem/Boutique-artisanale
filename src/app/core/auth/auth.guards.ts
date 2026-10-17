@@ -36,3 +36,4 @@ export function exigerRole(role?: Role): CanMatchFn {
 export const authGuard = exigerRole();
 export const vendeurGuard = exigerRole('vendeur');
 export const adminGuard = exigerRole('admin');
+export const clientGuard = exigerRole('client');

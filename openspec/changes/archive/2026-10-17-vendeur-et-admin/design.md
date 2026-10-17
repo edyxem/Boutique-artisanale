@@ -58,7 +58,7 @@ Un utilitaire `auteur(req)` vérifie le jeton (`jsonwebtoken.verify` avec la cl�
 ### 4. Formulaires en modale
 
 - `shared/produit-formulaire/produit-formulaire.ts` : formulaire réactif (`input()` `produit`, `categories`, `boutiques?` ; `output()` `enregistrer`) ; validateurs `prixValide` et `auMoinsUnePhoto` ; champ « Boutique » (`<select>` natif stylé) seulement si `boutiques` est fourni.
-- **Choix de la photo** : grille de vignettes des photos produit de la bibliothèque (`PHOTOS_PRODUITS`, liste des fichiers `produit-*.jpg`), en `role="radiogroup"` ; la photo choisie s'affiche aussitôt dans l'aperçu 4:5 du formulaire (fondu croisé). Remplace le champ URL : aucune image externe n'est possible.
+- **Choix de la photo** : grille de vignettes des photos produit de la bibliothèque (`PHOTOS_PRODUITS`, liste des fichiers `produit-*.jpg`), en boutons radio natifs regroupés dans un `fieldset` ; la photo choisie s'affiche aussitôt dans l'aperçu 4:5 du formulaire (fondu croisé). Remplace le champ URL : aucune image externe n'est possible.
 - Les routes `…/nouveau` et `…/:id` sont des **routes enfants** de la liste : la liste reste affichée et le formulaire s'ouvre dans `ui-modale` ; fermer la modale ramène à l'URL de la liste. URL partageables, retour arrière naturel, apparence du template.
 - Catégories : même principe avec `CategorieFormulaire` (nom, slug proposé par `slugifier()` tant que l'utilisateur ne l'a pas modifié).
 
@@ -101,11 +101,11 @@ Sur les primitives de `design-template`, désactivées avec le mouvement réduit
 
 - tuiles de l'aperçu et total des ventes en `uiCompteur` ; tuiles qui apparaissent en cascade ;
 - lignes de tableau en cascade au premier affichage et après filtrage (60 ms, 8 lignes au plus) ;
-- indicateur de l'entrée active du menu latéral qui glisse d'une entrée à l'autre ;
+- entrée active du menu latéral mise en valeur par un fond clair qui apparaît en fondu (300 ms) ;
 - bouton « Supprimer » armé : passage en « Confirmer » (couleur `--bad`, 200 ms) avec le décompte des secondes restantes ;
-- formulaire en modale : ouverture du template, aperçu de photo en fondu croisé, vignette choisie entourée par un anneau qui glisse ;
-- changement de statut ou d'état : la pastille change de couleur en fondu et la ligne est brièvement surlignée en `--mint` ;
-- ligne supprimée : repli en hauteur puis disparition.
+- formulaire en modale : ouverture du template, aperçu de photo en fondu croisé, vignette choisie entourée d'un anneau vert forêt (rose au focus clavier) ;
+- changement de statut ou d'état : la pastille change de couleur en fondu (le surlignage de la ligne est abandonné : en 300 ms au plus, il ne serait pas perceptible) ;
+- ligne supprimée ou filtrée : sortie en fondu descendant (`animate.leave`).
 
 ### 9. Services créés ou modifiés
 

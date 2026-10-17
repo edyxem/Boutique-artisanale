@@ -69,7 +69,7 @@ function normaliser(texte: string): string {
         </thead>
         <tbody>
           @for (ligne of lignesPage(); track $index; let i = $index) {
-            <tr class="motion-safe:animate-entree" [style.animation-delay]="delai(i)">
+            <tr class="motion-safe:animate-entree" animate.leave="motion-safe:animate-sortie" [style.animation-delay]="delai(i)">
               @for (colonne of colonnes(); track colonne.cle) {
                 <td
                   class="bg-bg px-3 py-3 align-middle first:rounded-l-ligne last:rounded-r-ligne"

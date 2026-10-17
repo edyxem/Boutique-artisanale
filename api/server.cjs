@@ -143,6 +143,12 @@ function reglesCommandes(req, res, next) {
         return res.status(403).jsonp('Action non autorisée');
       }
       req.body = { statut: 'annulee' };
+    } else {
+      // L'administrateur ne fait avancer le statut que selon les transitions permises.
+      if (!transitionsPermises(commande.statut).includes(req.body?.statut)) {
+        return res.status(409).jsonp('Transition de statut non permise');
+      }
+      req.body = { statut: req.body.statut };
     }
     if (req.body?.statut === 'annulee') {
       if (commande.statut === 'annulee') {
@@ -155,6 +161,137 @@ function reglesCommandes(req, res, next) {
   next();
 }
 
+/** Transitions de statut d'une commande (dupliquées dans core/services/transitions.ts, mêmes cas de test). */
+function transitionsPermises(statut) {
+  return { en_attente: ['expediee', 'annulee'], expediee: ['livree', 'annulee'] }[statut] ?? [];
+}
+
+const normaliser = (texte) => String(texte ?? '').trim().toLowerCase();
+const refuser = (res, statut, message) => res.status(statut).jsonp(message);
+
+/**
+ * Règles d'écriture de la gestion (vendeurs, utilisateurs, produits, catégories) :
+ * l'interface les reflète, mais c'est ici qu'elles sont garanties.
+ */
+function reglesGestion(req, res, next) {
+  const [, ressource, id] = req.path.split('/');
+  const ecriture = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method);
+  if (!ecriture || !['vendeurs', 'users', 'produits', 'categories'].includes(ressource)) {
+    return next();
+  }
+  if (ressource === 'users' && req.method === 'POST') {
+    return next(); // inscription : reglesComptes
+  }
+  const utilisateur = auteur(req);
+  if (!utilisateur) {
+    return refuser(res, 401, 'Connexion requise');
+  }
+  const admin = utilisateur.role === 'admin';
+  const db = router.db;
+
+  if (ressource === 'vendeurs') {
+    if (req.method === 'POST' && !id) {
+      if (utilisateur.role !== 'client') {
+        return refuser(res, 403, 'Réservé aux clients');
+      }
+      if (db.get('vendeurs').find({ utilisateurId: utilisateur.id }).value()) {
+        return refuser(res, 409, 'Une demande existe déjà');
+      }
+      const nom = normaliser(req.body?.nomBoutique);
+      if (db.get('vendeurs').value().some((v) => normaliser(v.nomBoutique) === nom)) {
+        return refuser(res, 409, 'Nom de boutique déjà utilisé');
+      }
+      req.body = { utilisateurId: utilisateur.id, nomBoutique: String(req.body.nomBoutique).trim(), description: req.body.description, statut: 'en_attente' };
+      return next();
+    }
+    if (!admin) {
+      return refuser(res, 403, "Réservé à l'administrateur");
+    }
+    const vendeur = db.get('vendeurs').find({ id: Number(id) }).value();
+    if (vendeur && req.method !== 'DELETE') {
+      const statut = req.body?.statut;
+      if (statut !== undefined && statut !== vendeur.statut) {
+        if (vendeur.statut !== 'en_attente' || !['valide', 'refuse'].includes(statut)) {
+          return refuser(res, 409, 'Transition de statut non permise');
+        }
+        if (statut === 'valide') {
+          db.get('users').find({ id: vendeur.utilisateurId }).assign({ role: 'vendeur' }).write();
+        }
+      }
+    }
+    return next();
+  }
+
+  if (ressource === 'users') {
+    if (!admin) {
+      return refuser(res, 403, "Réservé à l'administrateur");
+    }
+    if (Number(id) === utilisateur.id) {
+      return refuser(res, 403, 'Impossible de modifier son propre compte');
+    }
+    const cible = db.get('users').find({ id: Number(id) }).value();
+    if (cible && req.body?.role !== undefined && req.body.role !== cible.role) {
+      const titulaire = db.get('vendeurs').find({ utilisateurId: cible.id, statut: 'valide' }).value();
+      if (req.body.role === 'vendeur' || titulaire) {
+        return refuser(res, 409, 'Le rôle vendeur se gère depuis la page Vendeurs');
+      }
+    }
+    if (req.body) {
+      delete req.body.password; // jamais de mot de passe modifié par cette voie
+    }
+    return next();
+  }
+
+  if (ressource === 'produits') {
+    const boutique = db.get('vendeurs').find({ utilisateurId: utilisateur.id, statut: 'valide' }).value();
+    if (!admin && !(utilisateur.role === 'vendeur' && boutique)) {
+      return refuser(res, 403, "Réservé aux vendeurs et à l'administrateur");
+    }
+    if (req.method === 'POST' && !id) {
+      if (!admin) {
+        req.body = { ...req.body, vendeurId: boutique.id };
+      }
+      return next();
+    }
+    const produit = db.get('produits').find({ id: Number(id) }).value();
+    if (!produit) {
+      return next();
+    }
+    if (!admin && produit.vendeurId !== boutique.id) {
+      return refuser(res, 403, "Produit d'un autre vendeur");
+    }
+    if (!admin && req.body?.vendeurId !== undefined) {
+      req.body.vendeurId = boutique.id;
+    }
+    if (req.method === 'DELETE') {
+      const commande = db.get('commandes').value().some((c) => (c.lignes ?? []).some((l) => l.produitId === produit.id));
+      if (commande) {
+        return refuser(res, 409, 'Produit présent dans des commandes');
+      }
+    }
+    return next();
+  }
+
+  // categories
+  if (!admin) {
+    return refuser(res, 403, "Réservé à l'administrateur");
+  }
+  if (req.method === 'DELETE') {
+    if (db.get('produits').find({ categorieId: Number(id) }).value()) {
+      return refuser(res, 409, 'Catégorie utilisée par des produits');
+    }
+    return next();
+  }
+  const autres = db.get('categories').value().filter((c) => c.id !== Number(id));
+  if (req.body?.nom !== undefined && autres.some((c) => normaliser(c.nom) === normaliser(req.body.nom))) {
+    return refuser(res, 409, 'Nom de catégorie déjà utilisé');
+  }
+  if (req.body?.slug !== undefined && autres.some((c) => c.slug === req.body.slug)) {
+    return refuser(res, 409, 'Slug déjà utilisé');
+  }
+  return next();
+}
+
 router.render = (req, res) => {
   const donnees = req.path.startsWith('/users') ? sansMotDePasse(res.locals.data) : res.locals.data;
   res.jsonp(donnees);
@@ -165,6 +302,7 @@ app.use(jsonServer.defaults({ logger: process.env.NODE_ENV !== 'test' }));
 app.use(jsonServer.bodyParser);
 app.use(reglesComptes);
 app.use(reglesCommandes);
+app.use(reglesGestion);
 app.use(auth);
 app.use(router);
 

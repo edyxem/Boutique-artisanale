@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { adminGuard, authGuard, vendeurGuard } from './core/auth/auth.guards';
+import { adminGuard, authGuard, clientGuard, vendeurGuard } from './core/auth/auth.guards';
 
 export const routes: Routes = [
   {
@@ -42,6 +42,12 @@ export const routes: Routes = [
     title: 'Administration',
     canMatch: [adminGuard],
     loadChildren: () => import('./features/admin/admin.routes'),
+  },
+  {
+    path: 'devenir-vendeur',
+    title: 'Devenir artisan',
+    canMatch: [clientGuard],
+    loadComponent: () => import('./features/devenir-vendeur/devenir-artisan-page').then((m) => m.DevenirArtisanPage),
   },
   {
     path: 'connexion',

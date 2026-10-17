@@ -12,11 +12,12 @@ export const DELAI_CONFIRMATION = 3000;
   host: {
     type: 'button',
     '[class]': 'classes()',
+    '[attr.aria-label]': 'arme() ? "Confirmer la suppression de " + nomCible() : libelle() + " " + nomCible()',
     '(click)': 'clic()',
   },
   template: `
     @if (arme()) {
-      Confirmer ({{ restant() }})
+      Confirmer <span aria-hidden="true">({{ restant() }})</span>
     } @else {
       {{ libelle() }}
     }

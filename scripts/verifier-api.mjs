@@ -94,15 +94,15 @@ const SCENARIOS = [
     attendre(u.donnees.role === 'client' && u.donnees.actif === true, `role ${u.donnees.role}, actif ${u.donnees.actif}`);
   }],
   ['Compte désactivé avec le bon mot de passe', async (a) => {
-    await a.patch('/users/2', { actif: false });
+    await a.patch('/users/2', { actif: false }, await a.jeton('admin'));
     const r = await a.post('/login', COMPTES.client);
-    await a.patch('/users/2', { actif: true });
+    await a.patch('/users/2', { actif: true }, await a.jeton('admin'));
     attendre(r.statut === 403 && !r.donnees?.accessToken, `statut ${r.statut}`);
   }],
   ['Compte désactivé avec un mauvais mot de passe', async (a) => {
-    await a.patch('/users/2', { actif: false });
+    await a.patch('/users/2', { actif: false }, await a.jeton('admin'));
     const r = await a.post('/login', { email: COMPTES.client.email, password: 'faux-mot-de-passe' });
-    await a.patch('/users/2', { actif: true });
+    await a.patch('/users/2', { actif: true }, await a.jeton('admin'));
     attendre(r.statut === 400, `statut ${r.statut}`);
   }],
 
@@ -149,6 +149,81 @@ const SCENARIOS = [
     await a.patch(`/commandes/${commande.id}`, { statut: 'expediee' }, await a.jeton('admin'));
     const expediee = await a.patch(`/commandes/${commande.id}`, { statut: 'annulee' }, client);
     attendre(expediee.statut === 403, `commande expédiée : ${expediee.statut}`);
+  }],
+
+  // ---------- gestion (vendeur-et-admin) ----------
+  ['Écriture protégée : jeton absent ou compte désactivé refusé (401)', async (a) => {
+    attendre((await a.patch('/produits/1', { stock: 1 })).statut === 401, 'sans jeton');
+    const jeton = await a.jeton('vendeur2');
+    await a.patch('/users/4', { actif: false }, await a.jeton('admin'));
+    const r = await a.patch('/produits/6', { stock: 1 }, jeton);
+    await a.patch('/users/4', { actif: true }, await a.jeton('admin'));
+    attendre(r.statut === 401, `compte désactivé : ${r.statut}`);
+  }],
+  ['Demande « Devenir vendeur », seconde demande refusée, validation et refus', async (a) => {
+    const client = await a.jeton('client');
+    const demande = await a.post('/vendeurs', { nomBoutique: 'Les Tissages de Lucas', description: 'Tissages faits main en lin et laine.', statut: 'valide', utilisateurId: 1 }, client);
+    attendre(demande.statut === 201 && demande.donnees.statut === 'en_attente' && demande.donnees.utilisateurId === 2, `demande : ${JSON.stringify(demande.donnees)}`);
+    attendre((await a.post('/vendeurs', { nomBoutique: 'Autre', description: 'x' }, client)).statut === 409, 'seconde demande acceptée');
+    const admin = await a.jeton('admin');
+    attendre((await a.post('/vendeurs', { nomBoutique: 'Admin', description: 'x' }, admin)).statut === 403, 'demande de l\'admin acceptée');
+    attendre((await a.patch(`/vendeurs/${demande.donnees.id}`, { statut: 'valide' }, client)).statut === 403, 'validation par un client');
+    attendre((await a.patch(`/vendeurs/${demande.donnees.id}`, { statut: 'valide' }, admin)).statut === 200, 'validation refusée');
+    attendre((await a.get('/users/2')).donnees.role === 'vendeur', 'rôle vendeur non donné');
+    attendre((await a.patch(`/vendeurs/${demande.donnees.id}`, { statut: 'refuse' }, admin)).statut === 409, 'valide → refuse accepté');
+  }],
+  ['Nom de boutique déjà pris (409)', async (a) => {
+    await a.post('/register', { email: 'nouveau@exemple.fr', password: 'Secret123!', nom: 'Nouveau' });
+    const jeton = (await a.post('/login', { email: 'nouveau@exemple.fr', password: 'Secret123!' })).donnees.accessToken;
+    const r = await a.post('/vendeurs', { nomBoutique: 'atelier grès & sel', description: 'Une description assez longue.' }, jeton);
+    attendre(r.statut === 409, `statut ${r.statut}`);
+  }],
+  ['Modification refusée par l\'API : produit d\'un autre vendeur (403)', async (a) => {
+    const r = await a.patch('/produits/6', { stock: 99 }, await a.jeton('vendeur1'));
+    attendre(r.statut === 403, `statut ${r.statut}`);
+    attendre((await a.get('/produits/6')).donnees.stock !== 99, 'produit modifié');
+  }],
+  ['Création par un vendeur rattachée à sa boutique, suppression d\'un produit commandé refusée', async (a) => {
+    const jeton = await a.jeton('vendeur2');
+    const r = await a.post('/produits', { nom: 'Chaise Fil', description: 'Assise en rotin naturel.', prix: 260, stock: 6, images: ['/images/produit-chaise-fil.jpg'], categorieId: 2, vendeurId: 1, actif: true }, jeton);
+    attendre(r.statut === 201 && r.donnees.vendeurId === 2, `création : ${r.statut} vendeur ${r.donnees.vendeurId}`);
+    attendre((await a.delete(`/produits/${r.donnees.id}`, jeton)).statut === 200, 'suppression d\'un produit jamais commandé refusée');
+    const commande = await a.post('/commandes', { lignes: [{ produitId: 8, quantite: 1 }] }, await a.jeton('client'));
+    attendre(commande.statut === 201, 'commande de test');
+    attendre((await a.delete('/produits/8', jeton)).statut === 409, 'produit commandé supprimé (vendeur)');
+    attendre((await a.delete('/produits/8', await a.jeton('admin'))).statut === 409, 'produit commandé supprimé (admin)');
+  }],
+  ['Catégories : réservées à l\'admin, nom et slug uniques, catégorie utilisée non supprimable', async (a) => {
+    const admin = await a.jeton('admin');
+    attendre((await a.post('/categories', { nom: 'Vannerie', slug: 'vannerie' }, await a.jeton('vendeur1'))).statut === 403, 'vendeur accepté');
+    attendre((await a.post('/categories', { nom: 'Autre', slug: 'mobilier' }, admin)).statut === 409, 'slug en double accepté');
+    const creee = await a.post('/categories', { nom: 'Vannerie & Osier', slug: 'vannerie-osier' }, admin);
+    attendre(creee.statut === 201, `création : ${creee.statut}`);
+    attendre((await a.delete(`/categories/${creee.donnees.id}`, admin)).statut === 200, 'catégorie vide non supprimée');
+    attendre((await a.delete('/categories/2', admin)).statut === 409, 'catégorie utilisée supprimée');
+  }],
+  ['Utilisateurs : admin seulement, pas soi-même, pas de rôle vendeur, titulaire protégé', async (a) => {
+    const admin = await a.jeton('admin');
+    attendre((await a.patch('/users/2', { role: 'admin' }, await a.jeton('vendeur1'))).statut === 403, 'vendeur accepté');
+    attendre((await a.patch('/users/1', { actif: false }, admin)).statut === 403, 'désactivation de soi-même');
+    attendre((await a.patch('/users/5', { role: 'vendeur' }, admin)).statut === 409, 'rôle vendeur donné');
+    attendre((await a.patch('/users/3', { role: 'client' }, admin)).statut === 409, 'titulaire rétrogradé');
+    const promu = await a.patch('/users/5', { role: 'admin' }, admin);
+    await a.patch('/users/5', { role: 'client' }, admin);
+    attendre(promu.statut === 200 && promu.donnees.role === 'admin' && !('password' in promu.donnees), `promotion : ${promu.statut}`);
+  }],
+  ['Transitions de statut de l\'administrateur, remise en stock d\'une commande expédiée annulée', async (a) => {
+    const admin = await a.jeton('admin');
+    const commande = (await a.post('/commandes', { lignes: [{ produitId: 9, quantite: 2 }] }, await a.jeton('client'))).donnees;
+    const stock = (await a.get('/produits/9')).donnees.stock;
+    attendre((await a.patch(`/commandes/${commande.id}`, { statut: 'livree' }, admin)).statut === 409, 'en_attente → livree accepté');
+    attendre((await a.patch(`/commandes/${commande.id}`, { statut: 'expediee' }, admin)).statut === 200, 'expédition refusée');
+    attendre((await a.patch(`/commandes/${commande.id}`, { statut: 'annulee' }, admin)).statut === 200, 'annulation refusée');
+    attendre((await a.get('/produits/9')).donnees.stock === stock + 2, 'stock non rétabli');
+    const livree = (await a.post('/commandes', { lignes: [{ produitId: 9, quantite: 1 }] }, await a.jeton('client'))).donnees;
+    await a.patch(`/commandes/${livree.id}`, { statut: 'expediee' }, admin);
+    await a.patch(`/commandes/${livree.id}`, { statut: 'livree' }, admin);
+    attendre((await a.patch(`/commandes/${livree.id}`, { statut: 'en_attente' }, admin)).statut === 409, 'livree → en_attente accepté');
   }],
 ];
 

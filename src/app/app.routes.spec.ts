@@ -2,7 +2,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Title } from '@angular/platform-browser';
-import { provideRouter, Router, TitleStrategy } from '@angular/router';
+import { provideRouter, Router, TitleStrategy, withComponentInputBinding } from '@angular/router';
 import { App } from './app';
 import { routes } from './app.routes';
 import { jetonInterceptor } from './core/auth/jeton.interceptor';
@@ -27,7 +27,7 @@ describe('Application : routes, accès et authentification', () => {
     TestBed.configureTestingModule({
       imports: [App],
       providers: [
-        provideRouter(routes),
+        provideRouter(routes, withComponentInputBinding()),
         provideHttpClient(withInterceptors([jetonInterceptor, fausseApi(donneesExemple())])),
         provideHttpClientTesting(),
         { provide: TitleStrategy, useClass: TitreStrategy },
@@ -109,7 +109,8 @@ describe('Application : routes, accès et authentification', () => {
         demarrer(role);
         for (const url of urls) {
           await naviguer(url);
-          expect(router.url).toBe(url);
+          // /vendeur et /admin mènent à leur première page (/vendeur/produits, /admin/apercu).
+          expect(router.url.startsWith(url)).toBe(true);
         }
       }
     });
