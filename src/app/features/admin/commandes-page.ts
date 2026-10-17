@@ -8,6 +8,7 @@ import { CommandeGestion, CommandeService } from '../../core/services/commande.s
 import { messageErreur } from '../../core/services/erreurs-api';
 import { ProduitService } from '../../core/services/produit.service';
 import { ACTIONS_STATUT, transitionsPermises } from '../../core/services/transitions';
+import { valeurOu } from '../../shared/ressource';
 import { PrixPipe } from '../../shared/format';
 import { EntetePanneau } from '../../shared/panneau/panneau';
 import {
@@ -66,7 +67,7 @@ export class CommandesPage {
   protected readonly statuts = STATUTS;
   protected readonly commandes = rxResource({ stream: () => this.service.listerToutes() });
   protected readonly statutActif = computed(() => STATUTS.find(([s]) => s === this.statut())?.[0] ?? null);
-  protected readonly lignes = computed(() => (this.commandes.value() ?? []).filter((c) => !this.statutActif() || c.statut === this.statutActif()));
+  protected readonly lignes = computed(() => valeurOu(this.commandes, []).filter((c) => !this.statutActif() || c.statut === this.statutActif()));
 
   protected readonly colonnes: ColonneTableau<CommandeGestion>[] = [
     { cle: 'numero', libelle: 'N°', valeur: (c) => c.id, triable: true },
@@ -106,7 +107,7 @@ export class CommandesPage {
                 <li class="flex items-center gap-3 rounded-ligne bg-bg p-2.5">
                   @if (produit(d.produits, ligne.produitId); as p) {
                     <span class="relative size-10 shrink-0 overflow-hidden rounded-mini bg-line">
-                      <img [ngSrc]="p.images[0]" alt="" width="40" height="40" class="size-full object-cover" />
+                      <img [ngSrc]="p.images[0]" alt="" fill class="object-cover" />
                     </span>
                   }
                   <span class="flex-1">{{ produit(d.produits, ligne.produitId)?.nom ?? 'Produit retiré' }} × {{ ligne.quantite }} — {{ ligne.quantite * ligne.prixUnitaire | prix }}</span>
@@ -178,7 +179,7 @@ export class DetailCommandePage {
   });
 
   protected readonly transitions = computed(() => {
-    const commande = this.detail.value()?.commande;
+    const commande = valeurOu(this.detail, null)?.commande;
     return commande ? transitionsPermises(commande.statut) : [];
   });
 

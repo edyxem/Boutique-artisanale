@@ -6,6 +6,7 @@ import { of, switchMap } from 'rxjs';
 import { messageErreur } from '../../core/services/erreurs-api';
 import { ProduitGestion, ProduitService } from '../../core/services/produit.service';
 import { VendeurService } from '../../core/services/vendeur.service';
+import { valeurOu } from '../../shared/ressource';
 import { PrixPipe } from '../../shared/format';
 import { EntetePanneau } from '../../shared/panneau/panneau';
 import { RechargementListe } from '../../shared/panneau/rechargement';
@@ -54,7 +55,7 @@ export const MESSAGE_PRODUIT_COMMANDE = 'Ce produit figure dans des commandes : 
         >
           <ng-template uiCellule="photo" let-produit>
             <span class="relative block size-10 overflow-hidden rounded-mini bg-line">
-              <img [ngSrc]="produit.images[0]" alt="" width="40" height="40" class="size-full object-cover" />
+              <img [ngSrc]="produit.images[0]" alt="" fill class="object-cover" />
             </span>
           </ng-template>
           <ng-template uiCellule="prix" let-produit>{{ produit.prix | prix }}</ng-template>
@@ -90,7 +91,7 @@ export class ListeProduitsPage {
 
   protected readonly boutiques = computed(() => {
     const vues = new Map<number, string>();
-    for (const p of this.produits.value() ?? []) {
+    for (const p of valeurOu(this.produits, [])) {
       if (p.vendeur) {
         vues.set(p.vendeur.id, p.vendeur.nomBoutique);
       }
@@ -100,7 +101,7 @@ export class ListeProduitsPage {
 
   protected readonly lignes = computed(() => {
     const boutique = this.boutique();
-    return (this.produits.value() ?? []).filter((p) => !boutique || p.vendeurId === boutique);
+    return valeurOu(this.produits, []).filter((p) => !boutique || p.vendeurId === boutique);
   });
 
   protected readonly colonnes = computed<ColonneTableau<ProduitGestion>[]>(() => [

@@ -48,7 +48,7 @@ function stockValide(controle: AbstractControl): ValidationErrors | null {
               <label class="relative block aspect-square cursor-pointer overflow-hidden rounded-mini bg-line ring-2 ring-transparent has-checked:ring-forest has-focus-visible:ring-candy motion-safe:transition-shadow motion-safe:duration-200">
                 <input type="radio" class="sr-only" formControlName="photo" [value]="photo" />
                 <span class="sr-only">Photo {{ i + 1 }}</span>
-                <img [ngSrc]="photo" alt="" width="64" height="64" class="size-full object-cover" />
+                <img [ngSrc]="photo" alt="" fill class="object-cover" />
               </label>
             }
           </div>

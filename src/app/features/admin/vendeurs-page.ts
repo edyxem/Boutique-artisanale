@@ -6,6 +6,7 @@ import { StatutVendeur } from '../../core/models';
 import { messageErreur } from '../../core/services/erreurs-api';
 import { UtilisateurService } from '../../core/services/utilisateur.service';
 import { VendeurGestion, VendeurService } from '../../core/services/vendeur.service';
+import { valeurOu } from '../../shared/ressource';
 import { EntetePanneau } from '../../shared/panneau/panneau';
 import { ColonneTableau, NotificationService, UiBouton, UiCellule, UiEtatErreur, UiModale, UiPuce, UiSquelette, UiTableau } from '../../shared/ui';
 
@@ -81,7 +82,7 @@ export class VendeursPage {
   protected readonly envoi = signal(false);
 
   protected readonly statutActif = computed(() => STATUTS.find((s) => s.valeur === this.statut())?.valeur ?? null);
-  protected readonly lignes = computed(() => (this.vendeurs.value() ?? []).filter((v) => !this.statutActif() || v.statut === this.statutActif()));
+  protected readonly lignes = computed(() => valeurOu(this.vendeurs, []).filter((v) => !this.statutActif() || v.statut === this.statutActif()));
 
   protected readonly colonnes: ColonneTableau<VendeurGestion>[] = [
     { cle: 'boutique', libelle: 'Boutique', valeur: (v) => v.nomBoutique, triable: true },

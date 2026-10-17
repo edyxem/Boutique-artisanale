@@ -55,7 +55,7 @@ export const panierNonVideGuard: CanActivateFn = () =>
               @for (ligne of panier.lignesAffichees(); track ligne.produitId) {
                 <li class="flex items-center gap-3 rounded-vignette bg-bg p-2.5">
                   <span class="relative size-12 shrink-0 overflow-hidden rounded-champ bg-line">
-                    <img [ngSrc]="ligne.produit.images[0]" alt="" width="48" height="48" class="size-full object-cover" />
+                    <img [ngSrc]="ligne.produit.images[0]" alt="" fill class="object-cover" />
                   </span>
                   <span class="flex-1">{{ ligne.produit.nom }} × {{ ligne.quantite }} — {{ ligne.sousTotal | prix }}</span>
                   <span class="text-sm text-muted tabular-nums">{{ ligne.produit.prix | prix }} l'unité</span>

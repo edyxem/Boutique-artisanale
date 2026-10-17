@@ -1,11 +1,15 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Title } from '@angular/platform-browser';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { ActivatedRouteSnapshot, RouterStateSnapshot, convertToParamMap, provideRouter, withComponentInputBinding } from '@angular/router';
+import { Observable, firstValueFrom } from 'rxjs';
 import { NavigationSite } from '../../core/layout/navigation';
 import { Application, bouton, demarrerApplication, texte } from '../../testing/application';
 import { CataloguePage } from './catalogue-page';
+import { titreProduitResolver } from './fiche-page';
+import { AccueilPage } from '../accueil/accueil-page';
 import { SimulateurPrix } from '../accueil/prix-juste';
 
 describe('Catalogue et accueil', () => {
@@ -151,6 +155,41 @@ describe('Catalogue et accueil', () => {
       fixture.detectChanges();
       expect(texte(fixture.nativeElement)).toContain('Le catalogue est momentanément indisponible.');
       expect(bouton(fixture.nativeElement, 'Réessayer')).toBeDefined();
+    });
+
+    /** API arrêtée : toutes les requêtes échouent (produits ET catégories). */
+    async function sansApi<T>(composant: Type<T>): Promise<HTMLElement> {
+      TestBed.configureTestingModule({ providers: [provideRouter([], withComponentInputBinding()), provideHttpClient(), provideHttpClientTesting()] });
+      const fixture = TestBed.createComponent(composant);
+      fixture.detectChanges();
+      for (const requete of TestBed.inject(HttpTestingController).match(() => true)) {
+        if (!requete.cancelled) {
+          requete.error(new ProgressEvent('error'), { status: 0 });
+        }
+      }
+      await fixture.whenStable();
+      fixture.detectChanges();
+      return fixture.nativeElement;
+    }
+
+    it('API arrêtée : le catalogue affiche le message d\'erreur', async () => {
+      const element = await sansApi(CataloguePage);
+      expect(texte(element)).toContain('Le catalogue est momentanément indisponible.');
+      expect(bouton(element, 'Réessayer')).toBeDefined();
+    });
+
+    it('API arrêtée : le titre de la fiche ne bloque pas la navigation', async () => {
+      TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+      const route = { paramMap: convertToParamMap({ id: '1' }) } as ActivatedRouteSnapshot;
+      const titre = TestBed.runInInjectionContext(() => titreProduitResolver(route, {} as RouterStateSnapshot)) as Observable<string>;
+      const resultat = firstValueFrom(titre);
+      TestBed.inject(HttpTestingController).expectOne((r) => r.url.endsWith('/produits')).error(new ProgressEvent('error'), { status: 0 });
+      expect(await resultat).toBe('Boutique');
+    });
+
+    it('API arrêtée : l\'accueil s\'affiche sans les sections de produits', async () => {
+      const element = await sansApi(AccueilPage);
+      expect(texte(element.querySelector('h1'))).toContain('L\'objet juste');
     });
   });
 

@@ -44,7 +44,7 @@ function decrire(commande: Commande, produits: readonly Produit[]): CommandeAffi
               <div class="flex shrink-0 -space-x-3">
                 @for (vignette of commande.vignettes; track $index) {
                   <span class="relative size-10 overflow-hidden rounded-mini bg-line ring-2 ring-soft">
-                    <img [ngSrc]="vignette" alt="" width="40" height="40" class="size-full object-cover" />
+                    <img [ngSrc]="vignette" alt="" fill class="object-cover" />
                   </span>
                 }
               </div>

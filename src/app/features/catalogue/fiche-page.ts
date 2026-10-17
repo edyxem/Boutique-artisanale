@@ -2,17 +2,22 @@ import { NgOptimizedImage } from '@angular/common';
 import { Component, ElementRef, inject, input, linkedSignal, viewChild } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { ResolveFn, RouterLink } from '@angular/router';
-import { map } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 import { ProduitService } from '../../core/services/produit.service';
 import { PrixPipe } from '../../shared/format';
 import { AjoutPanier } from '../../shared/produits/ajout-panier';
+import { valeurOu } from '../../shared/ressource';
 import { UiBouton, UiEtatErreur, UiIcone, UiImageFondu, UiPartage, UiSquelette } from '../../shared/ui';
 
 /** Titre du document : nom du produit visible, sinon « Produit introuvable ». */
 export const titreProduitResolver: ResolveFn<string> = (route) =>
   inject(ProduitService)
     .trouverVisible(Number(route.paramMap.get('id')))
-    .pipe(map((produit) => produit?.nom ?? 'Produit introuvable'));
+    .pipe(
+      map((produit) => produit?.nom ?? 'Produit introuvable'),
+      // API injoignable : la navigation aboutit quand même, la fiche affiche son message d'erreur.
+      catchError(() => of('Boutique')),
+    );
 
 /** Fiche produit : la modale du template devenue une page à part entière. */
 @Component({
@@ -98,7 +103,7 @@ export class FichePage {
   });
 
   /** Quantité choisie, remise à 1 à chaque changement de produit. */
-  protected readonly quantite = linkedSignal({ source: () => this.produit.value()?.id, computation: () => 1 });
+  protected readonly quantite = linkedSignal({ source: () => valeurOu(this.produit, null)?.id, computation: () => 1 });
 
   protected ajouter(): void {
     const produit = this.produit.value();

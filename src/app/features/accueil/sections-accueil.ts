@@ -16,15 +16,15 @@ import { UiBouton, UiReveler } from '../../shared/ui';
       <p class="max-w-grand text-grand leading-grand tracking-tight">
         Chez Flowering,
         <span class="relative inline-block h-9 w-18 origin-left overflow-hidden rounded-full align-middle md:h-12 md:w-24 motion-safe:scale-x-0 motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-data-revele:scale-x-100">
-          <img ngSrc="/images/engagement-portrait-1.jpg" alt="" width="96" height="48" class="size-full object-cover" />
+          <img ngSrc="/images/engagement-portrait-1.jpg" alt="" fill class="object-cover" />
         </span>
         nous réunissons des artisans qui façonnent
         <span class="relative inline-block h-9 w-18 origin-left overflow-hidden rounded-full align-middle md:h-12 md:w-24 motion-safe:scale-x-0 motion-safe:transition-transform motion-safe:delay-100 motion-safe:duration-300 motion-safe:group-data-revele:scale-x-100">
-          <img ngSrc="/images/engagement-ceramique.jpg" alt="" width="96" height="48" class="size-full object-cover" />
+          <img ngSrc="/images/engagement-ceramique.jpg" alt="" fill class="object-cover" />
         </span>
         des objets du quotidien faits pour durer
         <span class="relative inline-block h-9 w-18 origin-left overflow-hidden rounded-full align-middle md:h-12 md:w-24 motion-safe:scale-x-0 motion-safe:transition-transform motion-safe:delay-200 motion-safe:duration-300 motion-safe:group-data-revele:scale-x-100">
-          <img ngSrc="/images/engagement-portrait-2.jpg" alt="" width="96" height="48" class="size-full object-cover" />
+          <img ngSrc="/images/engagement-portrait-2.jpg" alt="" fill class="object-cover" />
         </span>
         des années.
       </p>

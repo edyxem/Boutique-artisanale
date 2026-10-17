@@ -1,9 +1,10 @@
-import { Component, DestroyRef, computed, inject, input, linkedSignal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, input, linkedSignal, untracked } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { CategorieService } from '../../core/services/categorie.service';
 import { ProduitAffiche, ProduitService } from '../../core/services/produit.service';
 import { UiCarteProduit } from '../../shared/produits/carte-produit';
+import { valeurOu } from '../../shared/ressource';
 import { UiBouton, UiEtatErreur, UiIcone, UiPuce, UiReveler, UiSquelette } from '../../shared/ui';
 
 /** Délai avant de reporter la recherche dans l'URL (la grille, elle, se filtre immédiatement). */
@@ -31,7 +32,7 @@ function correspond(produit: ProduitAffiche, recherche: string): boolean {
       <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div class="flex flex-wrap gap-2" role="group" aria-label="Univers">
           <button uiPuce [actif]="!categorieActive()" (click)="filtrer(null)">Tout</button>
-          @for (categorie of categories.value() ?? []; track categorie.id) {
+          @for (categorie of listeCategories(); track categorie.id) {
             <button uiPuce [actif]="categorieActive()?.id === categorie.id" (click)="filtrer(categorie.slug)">{{ categorie.nom }}</button>
           }
         </div>
@@ -50,11 +51,11 @@ function correspond(produit: ProduitAffiche, recherche: string): boolean {
       </div>
 
       <h2 class="sr-only">Produits</h2>
-      <div class="grid grid-cols-2 gap-3.5 md:grid-cols-3 lg:grid-cols-4" [attr.aria-busy]="produits.isLoading()">
-        @if (produits.isLoading()) {
+      <div class="grid grid-cols-2 gap-3.5 md:grid-cols-3 lg:grid-cols-4" [attr.aria-busy]="chargement()">
+        @if (chargement()) {
           <ui-squelette forme="carte" [nombre]="8" />
         } @else if (produits.error()) {
-          <ui-etat-erreur class="col-span-full" message="Le catalogue est momentanément indisponible." (reessayer)="produits.reload()" />
+          <ui-etat-erreur class="col-span-full" message="Le catalogue est momentanément indisponible." (reessayer)="recharger()" />
         } @else {
           @for (produit of filtres(); track produit.id; let i = $index) {
             <ui-carte-produit [uiReveler]="i" [produit]="produit" [prioritaire]="prioritaires().has(produit.id)" />
@@ -81,28 +82,45 @@ export class CataloguePage {
   private minuterie: ReturnType<typeof setTimeout> | undefined;
 
   protected readonly produits = rxResource({ stream: () => this.produitService.listerVisibles() });
-  protected readonly categories = rxResource({ stream: () => this.categorieService.lister() });
+  private readonly categories = rxResource({ stream: () => this.categorieService.lister() });
 
   /** Texte saisi : suit l'URL, mais filtre la grille dès la frappe. */
   protected readonly texte = linkedSignal(() => this.q() ?? '');
 
+  /** Sans catégories (API en échec), seule la puce « Tout » reste. */
+  protected readonly listeCategories = computed(() => valeurOu(this.categories, []));
   protected readonly categorieActive = computed(
-    () => this.categories.value()?.find((categorie) => categorie.slug === this.categorie()) ?? null,
+    () => this.listeCategories().find((categorie) => categorie.slug === this.categorie()) ?? null,
   );
-  /** Les 4 premiers produits du catalogue chargent leur photo en priorité (valeur stable pendant le filtrage). */
-  protected readonly prioritaires = computed(() => new Set((this.produits.value() ?? []).slice(0, 4).map((p) => p.id)));
+  /** La grille attend les produits et les univers : le filtre de l'URL s'applique dès le premier affichage. */
+  protected readonly chargement = computed(() => this.produits.isLoading() || this.categories.isLoading());
   protected readonly titre = computed(() => this.categorieActive()?.nom ?? 'Toutes les créations');
 
   protected readonly filtres = computed(() => {
     const categorie = this.categorieActive();
     const recherche = normaliser(this.texte());
-    return (this.produits.value() ?? []).filter(
+    return valeurOu(this.produits, []).filter(
       (produit) => (!categorie || produit.categorieId === categorie.id) && (!recherche || correspond(produit, recherche)),
     );
   });
 
+  /**
+   * Les 4 premières cartes affichées au chargement (filtre de l'URL compris) chargent leur photo en priorité.
+   * Calculé une fois les données reçues, pas au filtrage : la priorité d'une image ne doit plus changer ensuite.
+   */
+  protected readonly prioritaires = computed(() => {
+    valeurOu(this.produits, []);
+    this.listeCategories();
+    return new Set(untracked(this.filtres).slice(0, 4).map((p) => p.id));
+  });
+
   constructor() {
     inject(DestroyRef).onDestroy(() => clearTimeout(this.minuterie));
+  }
+
+  protected recharger(): void {
+    this.produits.reload();
+    this.categories.reload();
   }
 
   /** Change d'univers : la navigation anime le déplacement des cartes (transition de vue). */

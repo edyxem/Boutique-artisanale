@@ -5,6 +5,7 @@ import { forkJoin, map, of, switchMap } from 'rxjs';
 import { CommandeService, Vente } from '../../core/services/commande.service';
 import { ProduitService } from '../../core/services/produit.service';
 import { VendeurService } from '../../core/services/vendeur.service';
+import { valeurOu } from '../../shared/ressource';
 import { PrixPipe } from '../../shared/format';
 import { EntetePanneau } from '../../shared/panneau/panneau';
 import { ColonneTableau, UiCellule, UiEtatErreur, UiSquelette, UiStatut, UiTableau, UiTuileStat } from '../../shared/ui';
@@ -56,7 +57,7 @@ export class MesVentesPage {
       ),
   });
 
-  private readonly retenues = computed(() => (this.ventes.value() ?? []).filter((v) => v.statut !== 'annulee'));
+  private readonly retenues = computed(() => valeurOu(this.ventes, []).filter((v) => v.statut !== 'annulee'));
   protected readonly total = computed(() => this.retenues().reduce((somme, v) => somme + v.montant, 0));
   protected readonly articles = computed(() => this.retenues().reduce((somme, v) => somme + v.quantite, 0));
 

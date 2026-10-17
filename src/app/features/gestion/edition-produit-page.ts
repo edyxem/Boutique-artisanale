@@ -8,17 +8,20 @@ import { DonneesProduit, ProduitService } from '../../core/services/produit.serv
 import { VendeurService } from '../../core/services/vendeur.service';
 import { RechargementListe } from '../../shared/panneau/rechargement';
 import { ProduitFormulaire } from '../../shared/produits/produit-formulaire';
-import { NotificationService, UiModale, UiSquelette } from '../../shared/ui';
+import { valeurOu } from '../../shared/ressource';
+import { NotificationService, UiEtatErreur, UiModale, UiSquelette } from '../../shared/ui';
 import { ModeGestion } from './liste-produits-page';
 
 /** Création ou modification d'un produit, en modale au-dessus de la liste (comme le template). */
 @Component({
   selector: 'app-edition-produit-page',
-  imports: [ProduitFormulaire, UiModale, UiSquelette],
+  imports: [ProduitFormulaire, UiEtatErreur, UiModale, UiSquelette],
   template: `
     <ui-modale [titre]="id() ? 'Modifier le produit' : 'Nouveau produit'" [ouverte]="true" (ouverteChange)="!$event && fermer()">
       @if (donnees.isLoading()) {
         <ui-squelette forme="tuile" />
+      } @else if (donnees.error()) {
+        <ui-etat-erreur message="Impossible de charger le produit." (reessayer)="donnees.reload()" />
       } @else if (introuvable()) {
         <p class="text-h3">Produit introuvable</p>
         <p class="text-muted">Ce produit n'existe pas ou n'appartient pas à votre boutique.</p>
@@ -62,7 +65,7 @@ export class EditionProduitPage {
 
   /** En modification : produit inexistant, ou produit d'une autre boutique pour un vendeur. */
   protected readonly introuvable = computed(() => {
-    const d = this.donnees.value();
+    const d = valeurOu(this.donnees, null);
     if (!d || !this.id()) {
       return false;
     }

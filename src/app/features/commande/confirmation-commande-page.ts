@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { CommandeService } from '../../core/services/commande.service';
 import { PrixPipe } from '../../shared/format';
+import { valeurOu } from '../../shared/ressource';
 import { UiBouton, UiSquelette } from '../../shared/ui';
 
 /** Confirmation d'une commande de l'utilisateur connecté (coche dessinée à l'arrivée). */
@@ -54,7 +55,7 @@ export class ConfirmationCommandePage {
 
   /** La commande n'est montrée qu'à son auteur. */
   protected readonly mienne = computed(() => {
-    const commande = this.commande.value();
+    const commande = valeurOu(this.commande, null);
     return commande && commande.clientId === this.auth.utilisateurConnecte()?.id ? commande : null;
   });
 }

@@ -21,7 +21,7 @@ import { NotificationService, UiBouton, UiIcone } from '../../shared/ui';
           >
             <div class="flex items-center gap-3 rounded-vignette bg-soft p-2.5">
               <div class="relative size-16 shrink-0 overflow-hidden rounded-champ bg-line">
-                <img [ngSrc]="ligne.produit.images[0]" alt="" width="64" height="64" class="size-full object-cover" />
+                <img [ngSrc]="ligne.produit.images[0]" alt="" fill class="object-cover" />
               </div>
               <div class="flex min-w-0 flex-1 flex-col">
                 <a [routerLink]="['/catalogue', ligne.produitId]" class="hover:underline">{{ ligne.produit.nom }}</a>
