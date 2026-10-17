@@ -69,6 +69,6 @@
 ## 10. Vérification d'ensemble
 
 - [ ] 10.1 Parcours manuel sur `npm run dev` : accueil, simulateur, univers, recherche et filtre, ajout au panier en visiteur, tiroir, rechargement, connexion au moment de commander, commande, contrôle du stock dans `db.json`, annulation et remise en stock ; noter chaque résultat puis restaurer `db.json`
-- [ ] 10.2 Comparer l'accueil, le catalogue, la fiche, le tiroir et l'espace client aux captures `01` à `04` et `07` du template (1440 px et 390 px) ; vérifier les animations sur un téléphone, puis avec la réduction des animations activée
+- [ ] 10.2 Comparer l'accueil, le catalogue, la fiche, le tiroir et l'espace client aux captures `01` à `04` et `07` du template (1440 px et 390 px) ; vérifier les animations sur un téléphone, puis avec la réduction des animations activée ; vérifier aussi les scénarios de `charte-graphique` « Grille produits sur mobile », « Grille produits sur bureau », « Carte produit » et « Emplacement réservé »
 - [ ] 10.3 Vérifier l'accessibilité de `/`, `/catalogue`, `/catalogue/1`, du tiroir, de `/panier`, `/commande` et `/compte` avec axe DevTools (aucune violation) et au clavier ; mesurer le CLS avec Lighthouse sur l'accueil et le catalogue
 - [ ] 10.4 Écrire les tests des scénarios : vérifier que chaque scénario des specs `accueil`, `catalogue`, `panier` et `commande` est couvert par un test automatisé ou une vérification manuelle (6.1, 6.2, 10.1), compléter les tests manquants, puis vérifier que `npm test` et `npx ng build` passent

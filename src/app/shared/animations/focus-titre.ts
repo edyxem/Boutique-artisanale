@@ -1,6 +1,7 @@
 import { Injector, Service, afterNextRender, inject } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, Router, ViewTransitionInfo } from '@angular/router';
 import { filter, skip } from 'rxjs';
+import { PreferencesMouvement } from './mouvement-reduit';
 
 /**
  * Après chaque navigation (hors première page), place le focus sur le titre principal
@@ -34,5 +35,12 @@ export class FocusTitre {
       titre.setAttribute('tabindex', '-1');
     }
     titre.focus({ preventScroll: true });
+  }
+}
+
+/** Rappel de `withViewTransitions` : la transition est ignorée quand le mouvement est réduit. */
+export function ignorerTransitionSiMouvementReduit({ transition }: ViewTransitionInfo): void {
+  if (inject(PreferencesMouvement).reduit()) {
+    transition.skipTransition();
   }
 }

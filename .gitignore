@@ -42,3 +42,6 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Captures et rapports de scripts/verifier-rendu.mjs
+/verification

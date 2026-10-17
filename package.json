@@ -9,7 +9,8 @@
     "test": "ng test",
     "api": "json-server-auth db.json --port 3000",
     "dev": "concurrently -k -n api,web -c blue,green \"npm:api\" \"npm:start\"",
-    "verifier:couleurs": "node scripts/verifier-couleurs.mjs"
+    "verifier:couleurs": "node scripts/verifier-couleurs.mjs",
+    "verifier:rendu": "node scripts/verifier-rendu.mjs"
   },
   "private": true,
   "packageManager": "npm@11.19.1",
@@ -28,6 +29,7 @@
     "@angular/cli": "^22.2.3",
     "@angular/compiler-cli": "^22.2.0",
     "@tailwindcss/postcss": "^4.1.12",
+    "axe-core": "^4.14.0",
     "concurrently": "^10.0.6",
     "jsdom": "^30.0.0",
     "json-server": "0.17.4",

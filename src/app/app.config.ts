@@ -12,7 +12,7 @@ import {
 } from '@angular/router';
 import { routes } from './app.routes';
 import { TitreStrategy } from './core/titre.strategy';
-import { FocusTitre, PreferencesMouvement } from './shared/ui';
+import { FocusTitre, ignorerTransitionSiMouvementReduit } from './shared/ui';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -22,11 +22,7 @@ export const appConfig: ApplicationConfig = {
       withInMemoryScrolling({ scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled' }),
       withViewTransitions({
         skipInitialTransition: true,
-        onViewTransitionCreated: ({ transition }) => {
-          if (inject(PreferencesMouvement).reduit()) {
-            transition.skipTransition();
-          }
-        },
+        onViewTransitionCreated: ignorerTransitionSiMouvementReduit,
       }),
     ),
     { provide: TitleStrategy, useClass: TitreStrategy },

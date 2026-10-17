@@ -36,7 +36,7 @@ import { NavigationSite } from '../navigation';
           </nav>
         </div>
       </div>
-      <div class="mt-10 flex flex-col gap-2 border-t border-line pt-5 text-sm text-muted sm:flex-row sm:justify-between">
+      <div class="mt-10 flex justify-between gap-4 border-t border-line pt-5 text-sm text-muted">
         <p>© 2026 {{ nomBoutique }}</p>
         <p>Photos : Unsplash</p>
       </div>

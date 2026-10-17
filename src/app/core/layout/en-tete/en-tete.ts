@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRouteSnapshot, NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter, map } from 'rxjs';
-import { UiBouton, UiIcone } from '../../../shared/ui';
+import { UiIcone } from '../../../shared/ui';
 import { NOM_BOUTIQUE } from '../../boutique.config';
 import { LienSite, NavigationSite } from '../navigation';
 import { MenuMobile } from '../menu-mobile/menu-mobile';
@@ -30,7 +30,7 @@ function donneeEnTete(route: ActivatedRouteSnapshot): string | undefined {
 /** En-tête du template : univers à gauche, logo au centre, liens, panier et compte à droite. */
 @Component({
   selector: 'app-en-tete',
-  imports: [RouterLink, RouterLinkActive, UiBouton, UiIcone, MenuMobile],
+  imports: [RouterLink, RouterLinkActive, UiIcone, MenuMobile],
   host: { '[class]': 'classesHote()' },
   template: `
     <header class="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 md:h-18">
@@ -72,10 +72,8 @@ function donneeEnTete(route: ActivatedRouteSnapshot): string | undefined {
         </nav>
         <ng-content />
         <button
-          uiBouton
-          variante="icone"
           type="button"
-          class="md:hidden"
+          class="grid size-8.5 cursor-pointer place-items-center rounded-full md:hidden"
           [class.text-white]="superpose()"
           aria-label="Menu"
           [attr.aria-expanded]="menuOuvert()"
