@@ -2,19 +2,16 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRouteSnapshot, NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter, map } from 'rxjs';
-import { UiIcone } from '../../../shared/ui';
+import { UiBouton, UiIcone } from '../../../shared/ui';
+import { AuthService } from '../../auth/auth.service';
 import { NOM_BOUTIQUE } from '../../boutique.config';
 import { LienSite, NavigationSite } from '../navigation';
 import { MenuMobile } from '../menu-mobile/menu-mobile';
 
-/** Liens de la zone droite (navigation principale). */
-const LIENS_PRINCIPAUX: LienSite[] = [
-  { chemin: '/catalogue', libelle: 'Catalogue' },
-  { chemin: '/panier', libelle: 'Panier' },
-  { chemin: '/commande', libelle: 'Commande' },
-  { chemin: '/compte', libelle: 'Mon compte' },
-  { chemin: '/vendeur', libelle: 'Espace vendeur' },
-  { chemin: '/admin', libelle: 'Administration' },
+/** Liens de la navigation principale du template, ouverts à tous. */
+const LIENS_PUBLICS: LienSite[] = [
+  { chemin: '/catalogue', libelle: 'Boutique' },
+  { chemin: '/', libelle: 'Nos artisans', fragment: 'comment-ca-marche' },
 ];
 
 function donneeEnTete(route: ActivatedRouteSnapshot): string | undefined {
@@ -30,7 +27,7 @@ function donneeEnTete(route: ActivatedRouteSnapshot): string | undefined {
 /** En-tête du template : univers à gauche, logo au centre, liens, panier et compte à droite. */
 @Component({
   selector: 'app-en-tete',
-  imports: [RouterLink, RouterLinkActive, UiIcone, MenuMobile],
+  imports: [RouterLink, RouterLinkActive, UiBouton, UiIcone, MenuMobile],
   host: { '[class]': 'classesHote()' },
   template: `
     <header class="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 md:h-18">
@@ -61,6 +58,7 @@ function donneeEnTete(route: ActivatedRouteSnapshot): string | undefined {
                 <a
                   [routerLink]="lien.chemin"
                   [fragment]="lien.fragment"
+                  [routerLinkActiveOptions]="{ exact: lien.chemin === '/' }"
                   routerLinkActive="font-medium"
                   ariaCurrentWhenActive="page"
                   class="relative after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-current hover:after:scale-x-100 motion-safe:after:transition-transform motion-safe:after:duration-300"
@@ -71,6 +69,16 @@ function donneeEnTete(route: ActivatedRouteSnapshot): string | undefined {
           </ul>
         </nav>
         <ng-content />
+        <a routerLink="/panier" class="relative grid size-8.5 place-items-center rounded-full" aria-label="Panier">
+          <ui-icone nom="sac" [taille]="20" />
+        </a>
+        @if (auth.estConnecte()) {
+          <a uiBouton taille="petit" [variante]="superpose() ? 'clair' : 'plein'" routerLink="/compte">{{ auth.prenom() }}</a>
+        } @else {
+          <a uiBouton taille="petit" [variante]="superpose() ? 'clair' : 'plein'" routerLink="/connexion" [queryParams]="{ retour: urlCourante() }">
+            Connexion
+          </a>
+        }
         <button
           type="button"
           class="grid size-8.5 cursor-pointer place-items-center rounded-full md:hidden"
@@ -88,12 +96,29 @@ function donneeEnTete(route: ActivatedRouteSnapshot): string | undefined {
 })
 export class EnTete {
   protected readonly navigation = inject(NavigationSite);
+  protected readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
   protected readonly nomBoutique = NOM_BOUTIQUE;
   protected readonly menuOuvert = signal(false);
-  /** Liens de la zone droite ; complétés selon le rôle par l'authentification. */
-  readonly liens = signal<LienSite[]>(LIENS_PRINCIPAUX);
+  /** Liens de la navigation principale selon le rôle de l'utilisateur connecté. */
+  readonly liens = computed<LienSite[]>(() => {
+    const role = this.auth.role();
+    return [
+      ...LIENS_PUBLICS,
+      ...(role === 'vendeur' ? [{ chemin: '/vendeur', libelle: 'Espace vendeur' }] : []),
+      ...(role === 'admin' ? [{ chemin: '/admin', libelle: 'Admin' }] : []),
+    ];
+  });
+
+  /** URL courante, conservée comme page de retour par le bouton « Connexion ». */
+  protected readonly urlCourante = toSignal(
+    this.router.events.pipe(
+      filter((evenement) => evenement instanceof NavigationEnd),
+      map(() => this.router.url),
+    ),
+    { initialValue: this.router.url },
+  );
 
   private readonly modeRoute = toSignal(
     this.router.events.pipe(

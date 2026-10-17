@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { App } from './app';
 
@@ -8,7 +9,7 @@ describe('Layout (App)', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), provideHttpClient()],
     }).compileComponents();
 
     const fixture = TestBed.createComponent(App);
@@ -32,14 +33,7 @@ describe('Layout (App)', () => {
   it('présente les liens de toutes les sections dans la navigation principale', () => {
     const nav = element.querySelector('nav[aria-label="Navigation principale"]');
     const libelles = Array.from(nav?.querySelectorAll('a') ?? []).map((a) => a.textContent?.trim());
-    expect(libelles).toEqual([
-      'Catalogue',
-      'Panier',
-      'Commande',
-      'Mon compte',
-      'Espace vendeur',
-      'Administration',
-    ]);
+    expect(libelles).toEqual(['Boutique', 'Nos artisans']);
   });
 
   it('place le focus sur le contenu principal via le lien d\'évitement', () => {

@@ -10,8 +10,8 @@ const FORMAT_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const FORMAT_BCRYPT = /^\$2[ab]\$\d{2}\$.{53}$/;
 
 describe('Données d\'exemple (db.json)', () => {
-  describe('api-simulee', () => {
-    it('contient les volumes attendus', () => {
+  describe('donnees : jeu de données', () => {
+    it('Volumes attendus', () => {
       expect(produits.length).toBe(10);
       expect(categories.length).toBe(4);
       expect(vendeurs.length).toBe(2);
@@ -19,23 +19,39 @@ describe('Données d\'exemple (db.json)', () => {
       expect(commandes.length).toBe(0);
     });
 
-    it('répartit les utilisateurs par rôle', () => {
+    it('Répartition des rôles', () => {
       const compter = (role: string) => users.filter((u) => u.role === role).length;
       expect(compter('admin')).toBe(1);
       expect(compter('client')).toBe(1);
       expect(compter('vendeur')).toBe(2);
+      expect(users.every((u) => u.actif)).toBe(true);
     });
 
-    it('donne au moins un produit à chaque catégorie et à chaque vendeur', () => {
+    it('Cas limites présents', () => {
       for (const categorie of categories) {
         expect(produits.some((p) => p.categorieId === categorie.id)).toBe(true);
       }
       for (const vendeur of vendeurs) {
         expect(produits.some((p) => p.vendeurId === vendeur.id)).toBe(true);
       }
+      expect(produits.some((p) => !p.actif)).toBe(true);
+      expect(produits.some((p) => p.stock === 0)).toBe(true);
+      expect(vendeurs.every((v) => v.statut === 'valide')).toBe(true);
     });
 
-    it('ne stocke aucun mot de passe en clair', () => {
+    it('Photos du template', async () => {
+      // Les tests s'exécutent dans Node : on vérifie que chaque photo existe dans la maquette.
+      const moduleFs = 'node:fs';
+      const { existsSync } = (await import(/* @vite-ignore */ moduleFs)) as { existsSync(chemin: string): boolean };
+      for (const produit of produits) {
+        for (const image of produit.images) {
+          expect(image).toMatch(/^\/images\/[a-z0-9-]+\.jpg$/);
+          expect(existsSync(`design-template${image}`)).toBe(true);
+        }
+      }
+    });
+
+    it('Aucun mot de passe en clair', () => {
       for (const user of users) {
         expect(user.password).toMatch(FORMAT_BCRYPT);
         expect(MOTS_DE_PASSE_DEMO).not.toContain(user.password);
@@ -43,8 +59,8 @@ describe('Données d\'exemple (db.json)', () => {
     });
   });
 
-  describe('modeles-donnees', () => {
-    it('respecte le modèle Utilisateur', () => {
+  describe('donnees : modèles', () => {
+    it("Utilisateurs d'exemple conformes", () => {
       for (const user of users) {
         expect(typeof user.id).toBe('number');
         expect(user.nom.trim()).not.toBe('');
@@ -60,7 +76,7 @@ describe('Données d\'exemple (db.json)', () => {
       expect(new Set(emails).size).toBe(emails.length);
     });
 
-    it('rattache chaque vendeur à un compte vendeur distinct', () => {
+    it("Vendeurs d'exemple conformes", () => {
       for (const vendeur of vendeurs) {
         const user = users.find((u) => u.id === vendeur.utilisateurId);
         expect(user?.role).toBe('vendeur');
@@ -76,7 +92,7 @@ describe('Données d\'exemple (db.json)', () => {
       expect(vendeurs.some((v) => v.statut === 'valide')).toBe(true);
     });
 
-    it('a des slugs de catégorie valides et uniques', () => {
+    it('Slugs valides et uniques', () => {
       for (const categorie of categories) {
         expect(categorie.slug).toMatch(FORMAT_SLUG);
       }
@@ -84,7 +100,7 @@ describe('Données d\'exemple (db.json)', () => {
       expect(new Set(slugs).size).toBe(slugs.length);
     });
 
-    it('respecte le modèle Produit', () => {
+    it("Produits d'exemple conformes", () => {
       for (const produit of produits) {
         expect(produit.nom.trim()).not.toBe('');
         expect(produit.prix).toBeGreaterThan(0);

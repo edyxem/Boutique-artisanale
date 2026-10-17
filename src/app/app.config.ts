@@ -10,7 +10,9 @@ import {
   withInMemoryScrolling,
   withViewTransitions,
 } from '@angular/router';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
+import { jetonInterceptor } from './core/auth/jeton.interceptor';
 import { TitreStrategy } from './core/titre.strategy';
 import { FocusTitre, ignorerTransitionSiMouvementReduit } from './shared/ui';
 
@@ -25,6 +27,7 @@ export const appConfig: ApplicationConfig = {
         onViewTransitionCreated: ignorerTransitionSiMouvementReduit,
       }),
     ),
+    provideHttpClient(withFetch(), withInterceptors([jetonInterceptor])),
     { provide: TitleStrategy, useClass: TitreStrategy },
     provideAppInitializer(() => inject(FocusTitre).demarrer()),
   ],

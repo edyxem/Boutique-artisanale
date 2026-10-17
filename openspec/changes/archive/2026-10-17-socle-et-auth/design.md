@@ -90,8 +90,9 @@ jsonServer.create()
 | `**` | — | `loadComponent` → `shared/pages/page-introuvable` | Page introuvable |
 
 - `canMatch` (et non `canActivate`) : le code d'une section n'est pas téléchargé pour un utilisateur non autorisé.
-- `core/auth/auth.guards.ts` : fabrique `exigerRole(role?: Role): CanMatchFn` ; `authGuard`, `vendeurGuard`, `adminGuard`. Non connecté → `/connexion?retour=<url>` (reconstruite depuis `router.getCurrentNavigation()?.extractedUrl`) ; mauvais rôle → `/acces-refuse`.
-- `core/auth/retour.ts` : `retourSur(valeur)` accepte un chemin commençant par un seul `/` (ni `//`, ni `/\`), sinon `/catalogue`.
+- `core/auth/auth.guards.ts` : fabrique `exigerRole(role?: Role): CanMatchFn` ; `authGuard`, `vendeurGuard`, `adminGuard`. Non connecté → `RedirectCommand` vers `/connexion?retour=<url>` (reconstruite depuis `router.currentNavigation()?.extractedUrl`), avec `accesProtege` dans l'état de navigation pour afficher « Connectez-vous pour accéder à cette page. » sans modifier l'URL ; mauvais rôle → `/acces-refuse`.
+- `retourSur(valeur)` (dans le même fichier) accepte un chemin commençant par un seul `/` (ni `//`, ni `/\`), hors `/connexion` et `/inscription`, sinon `/catalogue`.
+- Les sections `/vendeur` et `/admin` gardent une page provisoire pour toutes leurs sous-pages (`**`) jusqu'à `vendeur-et-admin`.
 
 ### 5. `AuthService` (`core/auth/auth.service.ts`)
 

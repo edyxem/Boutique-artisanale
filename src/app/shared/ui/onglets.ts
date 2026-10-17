@@ -11,9 +11,9 @@ export interface Onglet {
 @Component({
   selector: 'ui-onglets',
   template: `
-    <div role="tablist" [attr.aria-label]="libelle()" class="relative grid auto-cols-fr grid-flow-col rounded-full bg-soft p-1">
+    <div role="tablist" [attr.aria-label]="libelle()" class="relative grid auto-cols-fr grid-flow-col rounded-full bg-bg p-1">
       <span
-        class="absolute inset-y-1 left-1 rounded-full bg-bg motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-flowering"
+        class="absolute inset-y-1 left-1 rounded-full bg-forest motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-flowering"
         [style.width]="'calc((100% - 0.5rem) / ' + onglets().length + ')'"
         [style.transform]="'translateX(' + indexSelection() * 100 + '%)'"
         aria-hidden="true"
@@ -23,9 +23,9 @@ export interface Onglet {
           #bouton
           type="button"
           role="tab"
-          class="relative cursor-pointer rounded-full px-4 py-2 text-bouton"
-          [class.text-ink]="onglet.cle === selection()"
-          [class.text-muted]="onglet.cle !== selection()"
+          class="relative cursor-pointer rounded-full px-4 py-2.5 text-bouton motion-safe:transition-colors motion-safe:duration-300"
+          [class.text-forest-ink]="onglet.cle === selection()"
+          [class.text-ink]="onglet.cle !== selection()"
           [id]="'onglet-' + onglet.cle"
           [attr.aria-selected]="onglet.cle === selection()"
           [attr.aria-controls]="onglet.panneau"

@@ -5,7 +5,7 @@ export interface Produit {
   description: string;
   prix: number;
   stock: number;
-  /** URL des images du produit. */
+  /** Chemins des photos du produit dans la bibliothèque du site (`/images/…`). */
   images: string[];
   categorieId: number;
   vendeurId: number;

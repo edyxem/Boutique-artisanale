@@ -37,56 +37,75 @@
     {
       "id": 1,
       "utilisateurId": 3,
-      "nomBoutique": "L'Atelier de la Poterie",
-      "description": "Céramiques tournées et émaillées à la main dans un petit atelier de Bourgogne.",
+      "nomBoutique": "Atelier Grès & Sel",
+      "description": "Céramiques tournées et émaillées à la main dans un atelier de Dieulefit, et bougies coulées en petites séries.",
       "statut": "valide"
     },
     {
       "id": 2,
       "utilisateurId": 4,
-      "nomBoutique": "Bois & Merveilles",
-      "description": "Objets en bois massif sculptés et tissages traditionnels.",
-      "statut": "en_attente"
+      "nomBoutique": "Menuiserie Lebrun",
+      "description": "Mobilier et ustensiles en bois massif façonnés dans le Jura, assemblages sans vis.",
+      "statut": "valide"
     }
   ],
   "categories": [
-    { "id": 1, "nom": "Céramique", "slug": "ceramique" },
-    { "id": 2, "nom": "Bois", "slug": "bois" },
-    { "id": 3, "nom": "Textile", "slug": "textile" },
-    { "id": 4, "nom": "Bijoux", "slug": "bijoux" }
+    {
+      "id": 1,
+      "nom": "Céramique",
+      "slug": "ceramique"
+    },
+    {
+      "id": 2,
+      "nom": "Mobilier",
+      "slug": "mobilier"
+    },
+    {
+      "id": 3,
+      "nom": "Cuisine",
+      "slug": "cuisine"
+    },
+    {
+      "id": 4,
+      "nom": "Maison",
+      "slug": "maison"
+    }
   ],
   "produits": [
     {
       "id": 1,
-      "nom": "Bol en grès émaillé",
-      "description": "Bol tourné à la main, émail bleu profond, passe au lave-vaisselle.",
-      "prix": 28,
-      "stock": 12,
-      "images": ["https://picsum.photos/seed/bol-gres-emaille/600/400"],
+      "nom": "Tasses empilables Nuage",
+      "description": "Quatre tasses en grès émaillé blanc, façonnées à la main. Leurs anses irrégulières se glissent l'une dans l'autre.",
+      "prix": 34,
+      "stock": 18,
+      "images": [
+        "/images/produit-tasses-empilables.jpg"
+      ],
       "categorieId": 1,
       "vendeurId": 1,
       "actif": true
     },
     {
       "id": 2,
-      "nom": "Vase en terre cuite",
-      "description": "Vase de 30 cm en terre cuite naturelle, finition brute.",
-      "prix": 45,
-      "stock": 5,
-      "images": ["https://picsum.photos/seed/vase-terre-cuite/600/400"],
+      "nom": "Set de bols Sable",
+      "description": "Un grand bol et trois petits en grès moucheté, base laissée brute au toucher.",
+      "prix": 58,
+      "stock": 9,
+      "images": [
+        "/images/produit-set-bols-sable.jpg"
+      ],
       "categorieId": 1,
       "vendeurId": 1,
       "actif": true
     },
     {
       "id": 3,
-      "nom": "Service à thé en porcelaine",
-      "description": "Théière et quatre tasses en porcelaine fine, décor peint à la main.",
-      "prix": 120,
+      "nom": "Mugs mouchetés",
+      "description": "Mug tourné, émail crème moucheté et intérieur brillant.",
+      "prix": 29,
       "stock": 0,
       "images": [
-        "https://picsum.photos/seed/service-the-porcelaine/600/400",
-        "https://picsum.photos/seed/service-the-porcelaine-2/600/400"
+        "/images/produit-mugs-mouchetes.jpg"
       ],
       "categorieId": 1,
       "vendeurId": 1,
@@ -94,80 +113,94 @@
     },
     {
       "id": 4,
-      "nom": "Planche à découper en noyer",
-      "description": "Planche en noyer massif huilée, 40 x 25 cm.",
-      "prix": 39.9,
-      "stock": 20,
-      "images": ["https://picsum.photos/seed/planche-noyer/600/400"],
-      "categorieId": 2,
-      "vendeurId": 2,
+      "nom": "Bougie ambre Forêt",
+      "description": "Cire de colza coulée à la main, notes de cèdre et de mousse. Pot en verre ambré réutilisable.",
+      "prix": 32,
+      "stock": 24,
+      "images": [
+        "/images/produit-bougie-ambre.jpg"
+      ],
+      "categorieId": 4,
+      "vendeurId": 1,
       "actif": true
     },
     {
       "id": 5,
-      "nom": "Cuillères en olivier",
-      "description": "Lot de trois cuillères sculptées dans du bois d'olivier.",
-      "prix": 24.5,
-      "stock": 30,
-      "images": ["https://picsum.photos/seed/cuilleres-olivier/600/400"],
+      "nom": "Bougies parfumées",
+      "description": "Petites bougies au parfum de saison, coulées par lots de vingt.",
+      "prix": 18,
+      "stock": 40,
+      "images": [
+        "/images/produit-bougies-parfumees.jpg"
+      ],
+      "categorieId": 4,
+      "vendeurId": 1,
+      "actif": true
+    },
+    {
+      "id": 6,
+      "nom": "Tabouret de comptoir en frêne",
+      "description": "Frêne massif huilé, assemblages tenon-mortaise sans vis.",
+      "prix": 140,
+      "stock": 7,
+      "images": [
+        "/images/produit-tabouret-frene.jpg"
+      ],
       "categorieId": 2,
       "vendeurId": 2,
       "actif": true
     },
     {
-      "id": 6,
-      "nom": "Boîte à bijoux marquetée",
-      "description": "Boîte en chêne et érable, marqueterie géométrique.",
-      "prix": 65,
-      "stock": 3,
-      "images": ["https://picsum.photos/seed/boite-marquetee/600/400"],
-      "categorieId": 2,
-      "vendeurId": 2,
-      "actif": false
-    },
-    {
       "id": 7,
-      "nom": "Plaid en laine tissé main",
-      "description": "Plaid 130 x 170 cm en laine des Pyrénées, tissé sur métier traditionnel.",
-      "prix": 89,
-      "stock": 7,
-      "images": ["https://picsum.photos/seed/plaid-laine/600/400"],
-      "categorieId": 3,
+      "nom": "Tabouret haut Lin",
+      "description": "Hêtre massif teinté clair, pensé pour un îlot de cuisine.",
+      "prix": 165,
+      "stock": 2,
+      "images": [
+        "/images/produit-tabouret-haut.jpg"
+      ],
+      "categorieId": 2,
       "vendeurId": 2,
       "actif": true
     },
     {
       "id": 8,
-      "nom": "Torchons en lin brodés",
-      "description": "Lot de deux torchons en lin lavé, broderie florale.",
-      "prix": 32,
+      "nom": "Couverts de service Prairie",
+      "description": "Paire de couverts à salade en merisier, manches trempés dans une peinture végétale vert tendre.",
+      "prix": 38,
       "stock": 15,
-      "images": ["https://picsum.photos/seed/torchons-lin/600/400"],
+      "images": [
+        "/images/produit-couverts-service.jpg"
+      ],
       "categorieId": 3,
-      "vendeurId": 1,
+      "vendeurId": 2,
       "actif": true
     },
     {
       "id": 9,
-      "nom": "Boucles d'oreilles en céramique",
-      "description": "Boucles d'oreilles légères en porcelaine émaillée, crochets en argent.",
-      "prix": 22,
-      "stock": 25,
-      "images": ["https://picsum.photos/seed/boucles-ceramique/600/400"],
-      "categorieId": 4,
-      "vendeurId": 1,
+      "nom": "Ustensiles en olivier",
+      "description": "Cuillère, spatule et louche taillées dans des chutes d'olivier.",
+      "prix": 45,
+      "stock": 11,
+      "images": [
+        "/images/produit-ustensiles-olivier.jpg"
+      ],
+      "categorieId": 3,
+      "vendeurId": 2,
       "actif": true
     },
     {
       "id": 10,
-      "nom": "Bracelet en bois d'ébène",
-      "description": "Bracelet jonc en ébène poli, diamètre 6,5 cm.",
-      "prix": 35,
-      "stock": 9,
-      "images": ["https://picsum.photos/seed/bracelet-ebene/600/400"],
-      "categorieId": 4,
+      "nom": "Bols en bois tourné",
+      "description": "Bols tournés dans du noyer et du chêne, chaque veinage est unique.",
+      "prix": 52,
+      "stock": 5,
+      "images": [
+        "/images/produit-bols-bois-tourne.jpg"
+      ],
+      "categorieId": 3,
       "vendeurId": 2,
-      "actif": true
+      "actif": false
     }
   ],
   "commandes": []
