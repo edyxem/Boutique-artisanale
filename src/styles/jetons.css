@@ -155,4 +155,5 @@
   --animate-fondu-sortie: fondu-sortie 200ms ease-in both;
   --animate-croix-haut: croix-haut 300ms var(--ease-flowering) both;
   --animate-croix-bas: croix-bas 300ms var(--ease-flowering) both;
+  --animate-trace: trace 300ms 150ms var(--ease-flowering) both;
 }

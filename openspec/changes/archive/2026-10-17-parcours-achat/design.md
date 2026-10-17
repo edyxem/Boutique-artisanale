@@ -60,9 +60,9 @@ Middleware `reglesCommandes` ajouté à `api/server.cjs`, avant le routeur :
 
 ### 5. Catalogue
 
-- `CataloguePage` : `categorie = input<string>()`, `q = input<string>()` (paramètres de requête, `withComponentInputBinding()`) ; `produitsFiltres = computed(...)` ; normalisation sans accents ni majuscules (`normalize('NFD')`) ; recherche sur `nom`, `description` et `vendeur.nomBoutique` ; URL mise à jour après 150 ms (`replaceUrl`).
+- `CataloguePage` : `categorie = input<string>()`, `q = input<string>()` (paramètres de requête, `withComponentInputBinding()`) ; `filtres = computed(...)` ; normalisation sans accents ni majuscules ; recherche sur `nom`, `description` et `vendeur.nomBoutique`. Le texte saisi (`linkedSignal` sur `q`) filtre la grille immédiatement ; l'URL est mise à jour 150 ms plus tard (`replaceUrl`, état `sansTransition` : ni transition de vue ni déplacement du focus, `FocusTitre` ignorant les navigations sur le même chemin).
 - Puces `uiPuce` (« Tout » + catégories) ; champ de recherche du template (pilule avec loupe, libellé visuellement masqué « Rechercher un objet »).
-- `ui-carte-produit` (`shared/ui`, ajouté ici) : photo `aspect-square` (`NgOptimizedImage`, `fill`), `ui-badge-stock`, nom, « {boutique} · {prix} », `uiBouton` « Ajouter » (désactivé si épuisé, nom accessible « Ajouter {nom} au panier ») et `a[uiBouton]` contour « Détails ».
+- `ui-carte-produit` (`shared/produits`) : photo `aspect-square` (`NgOptimizedImage`, `fill`, priorité stable pour les 4 premiers produits) dans un lien masqué des technologies d'assistance (doublon de « Détails »), `ui-badge-stock` hors du lien, nom en lien vers la fiche, « {boutique} · {prix} », `uiBouton` « Ajouter » (désactivé si épuisé, « Ajouté ✓ » pendant 1,2 s) et « Détails » (masqué sous 480 px comme le template, le nom restant un lien).
 - `FichePage` (`/catalogue/:id`) : grille 2 colonnes du template (photo 4:5 arrondie à 20 px, informations), quantité − / + bornée, « Ajouter au panier » ou « Épuisé » ; `titreProduitResolver` pour le titre du document.
 - Zone gauche de l'en-tête : trois premières catégories ; colonne « Boutique » du pied de page : toutes ; menu mobile : mêmes liens.
 
@@ -81,7 +81,7 @@ Construites sur les primitives de `design-template` (désactivées avec le mouve
 - **Prix juste** : « 72 % » en `uiCompteur` ; segments de la barre qui s'ajustent (`motion-safe:transition-all motion-safe:duration-300`) quand le curseur bouge.
 - **Cartes et univers** : apparition en cascade (`uiReveler`) ; zoom de la photo au survol (1,04 / 1,06).
 - **Ajout au panier** : la photo de la carte (ou de la fiche) « vole » jusqu'au sac de l'en-tête (copie animée par l'API Web Animations, 300 ms, réduction et fondu), puis la pastille rebondit (`animate-pop`) ; le bouton affiche brièvement « Ajouté ✓ » (1,2 s). Sans mouvement : seule la pastille et le toast changent.
-- **Filtre et recherche** : `document.startViewTransition()` autour de la mise à jour de la grille → les cartes restantes glissent vers leur nouvelle place, les autres s'effacent (chaque carte porte un `view-transition-name` unique).
+- **Filtre par univers** : la navigation déclenche la transition de vue du routeur (`withViewTransitions`) ; chaque carte porte un `view-transition-name` unique (`carte-{id}`), donc les cartes restantes glissent vers leur nouvelle place. La saisie de recherche filtre sans transition de vue.
 - **Carte → fiche** : photo partagée (`uiPartage="produit-{id}"`) qui s'agrandit jusqu'à la fiche.
 - **Tiroir et lignes** : glissement du tiroir (composant `ui-tiroir`) ; nouvelles lignes en fondu ; ligne retirée qui se replie (hauteur via `grid-template-rows`) ; chiffre de quantité qui glisse vers le haut ou le bas ; total qui défile vers sa nouvelle valeur.
 - **Commande** : passage livraison → récapitulatif par glissement latéral ; confirmation avec une coche dessinée (tracé SVG animé) avant « Merci pour votre commande ! ».
@@ -112,7 +112,7 @@ Construites sur les primitives de `design-template` (désactivées avec le mouve
 - [`GET /users?role=vendeur` est public] → mots de passe retirés par le serveur ; acceptable pour l'API simulée.
 - [Commandes lisibles par un appel direct à l'API] → l'interface filtre par `clientId` ; permissions fines hors périmètre.
 - [Vol vers le panier : le sac est masqué dans le menu burger sur mobile] → la trajectoire vise le bouton du panier, toujours visible dans l'en-tête mobile ; sinon l'animation est omise.
-- [`startViewTransition` indisponible] → la grille se met à jour sans animation.
+- [Transitions de vues indisponibles] → la grille se met à jour sans animation.
 - [Prix modifié entre l'ajout et la confirmation] → le récapitulatif relit les prix et le serveur fixe le prix final.
 
 ## Migration Plan

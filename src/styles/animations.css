@@ -93,6 +93,13 @@
   }
 }
 
+/* Coche dessinée (confirmation de commande) : tracé SVG avec pathLength="1" et stroke-dasharray="1". */
+@keyframes trace {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
 /* Transitions entre les pages (API View Transitions), seulement si le mouvement est permis. */
 @media (prefers-reduced-motion: no-preference) {
   ::view-transition-old(root) {

@@ -105,6 +105,51 @@ const SCENARIOS = [
     await a.patch('/users/2', { actif: true });
     attendre(r.statut === 400, `statut ${r.statut}`);
   }],
+
+  // ---------- commande (parcours-achat) ----------
+  ['Commande réussie : champs fixés par le serveur et stock décrémenté', async (a) => {
+    const jeton = await a.jeton('client');
+    const avant = (await a.get('/produits/1')).donnees.stock;
+    const r = await a.post('/commandes', { lignes: [{ produitId: 1, quantite: 2, prixUnitaire: 1 }], adresseLivraison: { ville: 'Paris' }, clientId: 99, total: 1 }, jeton);
+    attendre(r.statut === 201, `statut ${r.statut}`);
+    const c = r.donnees;
+    attendre(c.clientId === 2 && c.statut === 'en_attente' && c.total === 68, `commande ${JSON.stringify(c)}`);
+    attendre(c.lignes[0].prixUnitaire === 34 && typeof c.dateCreation === 'string', 'prix ou date non fixés');
+    const apres = (await a.get('/produits/1')).donnees.stock;
+    attendre(apres === avant - 2, `stock ${avant} → ${apres}`);
+  }],
+  ['Commande sans jeton refusée (401)', async (a) => {
+    const r = await a.post('/commandes', { lignes: [{ produitId: 1, quantite: 1 }] });
+    attendre(r.statut === 401, `statut ${r.statut}`);
+  }],
+  ['Stock insuffisant ou produit non visible refusé (409)', async (a) => {
+    const jeton = await a.jeton('client');
+    const stock = await a.post('/commandes', { lignes: [{ produitId: 7, quantite: 3 }] }, jeton);
+    attendre(stock.statut === 409 && stock.donnees.indisponibles[0].disponible === 2, `stock : ${stock.statut} ${JSON.stringify(stock.donnees)}`);
+    const inactif = await a.post('/commandes', { lignes: [{ produitId: 10, quantite: 1 }] }, jeton);
+    attendre(inactif.statut === 409, `inactif : ${inactif.statut}`);
+    attendre((await a.get('/produits/7')).donnees.stock === 2, 'stock modifié malgré le refus');
+  }],
+  ['Stock rétabli à l\'annulation, une seule fois', async (a) => {
+    const jeton = await a.jeton('client');
+    const commande = (await a.post('/commandes', { lignes: [{ produitId: 2, quantite: 2 }] }, jeton)).donnees;
+    const apresCommande = (await a.get('/produits/2')).donnees.stock;
+    const r = await a.patch(`/commandes/${commande.id}`, { statut: 'annulee' }, jeton);
+    attendre(r.statut === 200 && r.donnees.statut === 'annulee', `annulation : ${r.statut}`);
+    attendre((await a.get('/produits/2')).donnees.stock === apresCommande + 2, 'stock non rétabli');
+    const encore = await a.patch(`/commandes/${commande.id}`, { statut: 'annulee' }, jeton);
+    attendre(encore.statut !== 200, 'seconde annulation acceptée');
+    attendre((await a.get('/produits/2')).donnees.stock === apresCommande + 2, 'double remise en stock');
+  }],
+  ['Annulation refusée hors « en attente » ou pour un autre client (403)', async (a) => {
+    const client = await a.jeton('client');
+    const commande = (await a.post('/commandes', { lignes: [{ produitId: 4, quantite: 1 }] }, client)).donnees;
+    const autre = await a.patch(`/commandes/${commande.id}`, { statut: 'annulee' }, await a.jeton('vendeur1'));
+    attendre(autre.statut === 403, `autre client : ${autre.statut}`);
+    await a.patch(`/commandes/${commande.id}`, { statut: 'expediee' }, await a.jeton('admin'));
+    const expediee = await a.patch(`/commandes/${commande.id}`, { statut: 'annulee' }, client);
+    attendre(expediee.statut === 403, `commande expédiée : ${expediee.statut}`);
+  }],
 ];
 
 async function principal() {

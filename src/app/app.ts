@@ -2,11 +2,12 @@ import { Component, ElementRef, viewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { EnTete } from './core/layout/en-tete/en-tete';
 import { PiedDePage } from './core/layout/pied-de-page/pied-de-page';
+import { TiroirPanier } from './features/panier/tiroir-panier';
 import { UiToasts } from './shared/ui';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, EnTete, PiedDePage, UiToasts],
+  imports: [RouterOutlet, EnTete, PiedDePage, TiroirPanier, UiToasts],
   host: { class: 'flex min-h-dvh flex-col' },
   template: `
     <a
@@ -17,10 +18,11 @@ import { UiToasts } from './shared/ui';
       Aller au contenu principal
     </a>
     <app-en-tete />
-    <main #contenuPrincipal id="contenu-principal" tabindex="-1" class="flex-1 focus:outline-none">
+    <main #contenuPrincipal id="contenu-principal" tabindex="-1" class="min-h-dvh flex-1 focus:outline-none">
       <router-outlet />
     </main>
     <app-pied-de-page />
+    <app-tiroir-panier />
     <ui-toasts />
   `,
 })

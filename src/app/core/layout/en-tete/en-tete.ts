@@ -1,9 +1,11 @@
+import { DOCUMENT } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRouteSnapshot, NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { UiBouton, UiIcone } from '../../../shared/ui';
 import { AuthService } from '../../auth/auth.service';
+import { PanierService } from '../../services/panier.service';
 import { NOM_BOUTIQUE } from '../../boutique.config';
 import { LienSite, NavigationSite } from '../navigation';
 import { MenuMobile } from '../menu-mobile/menu-mobile';
@@ -33,7 +35,7 @@ function donneeEnTete(route: ActivatedRouteSnapshot): string | undefined {
     <header class="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 md:h-18">
       <nav aria-label="Univers" class="hidden flex-1 md:block">
         <ul class="flex gap-5 text-nav">
-          @for (lien of navigation.univers(); track lien.libelle) {
+          @for (lien of universEnTete(); track lien.libelle) {
             <li>
               <a
                 [routerLink]="lien.chemin"
@@ -69,9 +71,22 @@ function donneeEnTete(route: ActivatedRouteSnapshot): string | undefined {
           </ul>
         </nav>
         <ng-content />
-        <a routerLink="/panier" class="relative grid size-8.5 place-items-center rounded-full" aria-label="Panier">
+        <button
+          type="button"
+          data-cible-panier
+          class="relative grid size-8.5 cursor-pointer place-items-center rounded-full"
+          [attr.aria-label]="libellePanier()"
+          (click)="panier.tiroirOuvert.set(true)"
+        >
           <ui-icone nom="sac" [taille]="20" />
-        </a>
+          @for (nombre of nombreAffiche(); track nombre) {
+            <b
+              class="absolute -top-1 -right-1 grid min-w-4.5 place-items-center rounded-full bg-candy px-1 text-badge font-medium text-photo-ink motion-safe:animate-pop"
+              aria-hidden="true"
+              >{{ nombre }}</b
+            >
+          }
+        </button>
         @if (auth.estConnecte()) {
           <a uiBouton taille="petit" [variante]="superpose() ? 'clair' : 'plein'" routerLink="/compte">{{ auth.prenom() }}</a>
         } @else {
@@ -91,12 +106,22 @@ function donneeEnTete(route: ActivatedRouteSnapshot): string | undefined {
         </button>
       </div>
     </header>
-    <app-menu-mobile [(ouvert)]="menuOuvert" [univers]="navigation.univers()" [liens]="liens()" />
+    <app-menu-mobile [(ouvert)]="menuOuvert" [univers]="universEnTete()" [liens]="liens()" />
   `,
 })
 export class EnTete {
   protected readonly navigation = inject(NavigationSite);
   protected readonly auth = inject(AuthService);
+  protected readonly panier = inject(PanierService);
+
+  /** Trois premiers univers dans la zone gauche (et le menu mobile), comme le template. */
+  protected readonly universEnTete = computed(() => this.navigation.univers().slice(0, 3));
+  /** Nombre d'articles, dans un tableau pour rejouer l'animation de la pastille à chaque changement. */
+  protected readonly nombreAffiche = computed(() => (this.panier.nombreArticles() ? [this.panier.nombreArticles()] : []));
+  protected readonly libellePanier = computed(() => {
+    const nombre = this.panier.nombreArticles();
+    return nombre ? `Panier, ${nombre} article${nombre > 1 ? 's' : ''}` : 'Panier';
+  });
   private readonly router = inject(Router);
 
   protected readonly nomBoutique = NOM_BOUTIQUE;
@@ -125,7 +150,9 @@ export class EnTete {
       filter((evenement) => evenement instanceof NavigationEnd),
       map(() => donneeEnTete(this.router.routerState.snapshot.root)),
     ),
-    { initialValue: undefined },
+    // Avant la première navigation, l'URL du navigateur indique déjà l'accueil : pas de bascule de l'en-tête
+    // (et donc pas de décalage de la page) une fois la route chargée.
+    { initialValue: inject(DOCUMENT).location?.pathname === '/' ? 'superpose' : undefined },
   );
 
   /** Sur l'accueil, l'en-tête se superpose au hero tant que celui-ci est visible. */

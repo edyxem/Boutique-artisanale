@@ -1,1 +1,2 @@
 class="text-[#ff0000]" style="color: #ff0000"
+class="[stroke-dasharray:1] [&:hover]:bg-soft"

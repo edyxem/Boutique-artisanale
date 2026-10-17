@@ -13,7 +13,7 @@ export const SEUIL_GLISSEMENT = 80;
   template: `
     <dialog
       #dialogue
-      class="my-0 mr-0 ml-auto h-dvh max-h-dvh w-full overflow-hidden bg-bg p-0 text-ink backdrop:bg-voile sm:max-w-tiroir sm:rounded-l-bloc open:motion-safe:animate-entree-droite open:backdrop:motion-safe:animate-fondu data-fermeture:motion-safe:animate-sortie-droite data-fermeture:backdrop:motion-safe:animate-fondu-sortie"
+      class="my-0 mr-0 ml-auto h-dvh max-h-dvh w-full max-w-none overflow-hidden bg-bg p-0 text-ink backdrop:bg-voile sm:max-w-tiroir sm:rounded-l-bloc open:motion-safe:animate-entree-droite open:backdrop:motion-safe:animate-fondu data-fermeture:motion-safe:animate-sortie-droite data-fermeture:backdrop:motion-safe:animate-fondu-sortie"
       [attr.aria-labelledby]="idTitre"
       [attr.data-fermeture]="fermeture() ? '' : null"
       [style.translate]="decalage() ? decalage() + 'px 0' : null"
@@ -27,12 +27,12 @@ export const SEUIL_GLISSEMENT = 80;
       (pointercancel)="finGlissement()"
     >
       <div class="flex h-full flex-col gap-4 p-5 md:p-6">
-        <header class="flex items-center justify-between gap-4">
+        <div class="flex items-center justify-between gap-4">
           <h2 [id]="idTitre">{{ titre() }}</h2>
           <button uiBouton variante="icone" type="button" aria-label="Fermer" (click)="fermer()">
             <ui-icone nom="croix" [taille]="16" />
           </button>
-        </header>
+        </div>
         <ng-content />
       </div>
     </dialog>

@@ -19,12 +19,12 @@ import { SurfaceDialogue } from './surface';
       (close)="fermer()"
     >
       <div class="flex flex-col gap-5 p-5 md:p-8">
-        <header class="flex items-start justify-between gap-4">
+        <div class="flex items-start justify-between gap-4">
           <h2 [id]="idTitre" class="text-h3 md:text-h2">{{ titre() }}</h2>
           <button uiBouton variante="icone" type="button" aria-label="Fermer" (click)="fermer()">
             <ui-icone nom="croix" [taille]="16" />
           </button>
-        </header>
+        </div>
         <ng-content />
       </div>
     </dialog>

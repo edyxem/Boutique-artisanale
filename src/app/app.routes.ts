@@ -6,6 +6,7 @@ export const routes: Routes = [
     path: '',
     pathMatch: 'full',
     title: 'Accueil',
+    data: { enTete: 'superpose' },
     loadComponent: () => import('./features/accueil/accueil-page').then((m) => m.AccueilPage),
   },
   {

@@ -18,6 +18,8 @@ const option = (nom, defaut) => {
 const BASE = option('--base', 'http://localhost:4200');
 const SORTIE = option('--sortie', 'verification');
 const CONNEXION = option('--connexion', '');
+const PANIER = option('--panier', ''); // « 1:2,4:1 » : produits et quantités placés au panier avant les visites
+const AVANT = option('--avant', ''); // code JavaScript exécuté après chaque chargement de page, avant l'audit
 const THEME = option('--theme', 'clair') === 'sombre' ? 'dark' : 'light'; // "email:motdepasse" : se connecter avant de visiter les pages
 const CHEMINS = args.length ? args : ['/', '/catalogue', '/page-inconnue'];
 const LARGEURS = [
@@ -110,15 +112,25 @@ async function ouvrir(cdp, url) {
   await cdp.envoyer('Page.navigate', { url });
   await Promise.race([charge, pause(15000)]);
   await pause(1500); // rendu Angular, images, apparitions (300 ms)
-  await evaluer(cdp, 'window.scrollTo(0, document.body.scrollHeight); new Promise(r => setTimeout(r, 600))');
+  // Défilement écran par écran, comme un visiteur : les apparitions au défilement se déclenchent.
+  await evaluer(
+    cdp,
+    `(async () => { for (let y = 0; y < document.body.scrollHeight; y += innerHeight * 0.8) { scrollTo(0, y); await new Promise(r => setTimeout(r, 120)); } await new Promise(r => setTimeout(r, 400)); })()`,
+  );
   await evaluer(cdp, 'window.scrollTo(0, 0); new Promise(r => setTimeout(r, 400))');
 }
 
 // ---------- Vérifications ----------
 const SCRIPT_CLS = `
   window.__cls = 0;
+  window.__decalages = [];
+  const decrire = (n) => n && n.nodeType === 1 ? n.tagName.toLowerCase() + (n.className && typeof n.className === 'string' ? '.' + n.className.split(' ').slice(0, 3).join('.') : '') : String(n && n.nodeName);
   new PerformanceObserver((liste) => {
-    for (const e of liste.getEntries()) if (!e.hadRecentInput) window.__cls += e.value;
+    for (const e of liste.getEntries()) {
+      if (e.hadRecentInput) continue;
+      window.__cls += e.value;
+      window.__decalages.push({ valeur: Math.round(e.value * 1000) / 1000, sources: (e.sources || []).slice(0, 3).map((s) => decrire(s.node)) });
+    }
   }).observe({ type: 'layout-shift', buffered: true });
 `;
 
@@ -134,6 +146,9 @@ async function verifierPage(cdp, chemin, ecran, imagesExternes) {
     mobile: ecran.mobile,
   });
   await ouvrir(cdp, BASE + chemin);
+  if (AVANT) {
+    await evaluer(cdp, `(async () => { ${AVANT}; await new Promise(r => setTimeout(r, 800)); })()`);
+  }
   const nom = `${THEME === 'dark' ? 'sombre-' : ''}${chemin.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'accueil'}-${ecran.nom}`;
   const { data } = await cdp.envoyer('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
   writeFileSync(join(SORTIE, `${nom}.png`), Buffer.from(data, 'base64'));
@@ -143,12 +158,13 @@ async function verifierPage(cdp, chemin, ecran, imagesExternes) {
     await cdp.envoyer('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
     await cdp.envoyer('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
   }
+  await pause(300); // les boutons animent leur contour (transition de 200 ms)
   const focus = await evaluer(
     cdp,
     `(() => { const e = document.activeElement, s = getComputedStyle(e);
       const candy = getComputedStyle(document.documentElement).getPropertyValue('--candy').trim();
       const rgb = h => 'rgb(' + [1,3,5].map(i => parseInt(h.slice(i, i + 2), 16)).join(', ') + ')';
-      return { element: e.tagName + ' ' + (e.textContent || '').trim().slice(0, 30),
+      return { element: e.tagName + ' ' + ((e.textContent || '').trim() || e.getAttribute('aria-label') || '').slice(0, 40), contour: s.outlineStyle + ' ' + s.outlineWidth + ' ' + s.outlineColor + ' / attendu ' + rgb(candy),
         ok: s.outlineStyle === 'solid' && s.outlineWidth === '2px' && s.outlineColor === rgb(candy) }; })()`,
   );
   const mesures = await evaluer(
@@ -162,6 +178,7 @@ async function verifierPage(cdp, chemin, ecran, imagesExternes) {
         tailleBase: getComputedStyle(document.body).fontSize,
         debordement: document.documentElement.scrollWidth > document.documentElement.clientWidth,
         cls: Math.round((window.__cls ?? 0) * 1000) / 1000,
+        decalages: (window.__decalages ?? []).filter(d => d.valeur >= 0.01),
         violations: audit.violations.map(v => ({ id: v.id, impact: v.impact, aide: v.help,
           cibles: v.nodes.slice(0, 3).map(n => n.target.join(' ')) })),
       };
@@ -188,6 +205,12 @@ async function principal() {
       imagesExternes.add(request.url);
     }
   });
+
+  if (PANIER) {
+    const lignes = PANIER.split(',').map((l) => l.split(':').map(Number)).map(([produitId, quantite]) => ({ produitId, quantite }));
+    await ouvrir(cdp, BASE + '/');
+    await evaluer(cdp, `localStorage.setItem('flowering.panier', ${JSON.stringify(JSON.stringify(lignes))})`);
+  }
 
   if (CONNEXION) {
     const [email, motDePasse] = CONNEXION.split(':');
@@ -240,7 +263,7 @@ async function principal() {
   for (const r of resultats) {
     const problemes = [];
     if (r.violations.length) problemes.push(`axe : ${r.violations.map((v) => `${v.id} (${v.cibles.join(', ')})`).join(' ; ')}`);
-    if (r.cls >= 0.1) problemes.push(`CLS ${r.cls}`);
+    if (r.cls >= 0.1) problemes.push(`CLS ${r.cls} : ${r.decalages.map((d) => `${d.valeur} ${d.sources.join(' + ')}`).join(' ; ')}`);
     if (r.debordement) problemes.push('défilement horizontal');
     if (!r.focus.ok) problemes.push(`focus clavier sans contour rose 2 px (${r.focus.element})`);
     if (r.imagesExternes.length) problemes.push(`images externes : ${r.imagesExternes.join(', ')}`);

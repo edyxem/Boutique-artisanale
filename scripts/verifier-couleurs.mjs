@@ -17,6 +17,7 @@ const regles = [
       /\b(?:bg|text|border|ring|from|to|via|fill|stroke|outline|decoration|accent|caret|divide|placeholder)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|black)(?:-\d+)?\b/g,
   },
   { nom: 'valeur arbitraire Tailwind', motif: /\b[a-z][\w-]*-\[[^\]\s]+\]/g },
+  { nom: 'propriété ou variante arbitraire Tailwind', motif: /(?<=["'\s])\[(?:&[^\]\s]*|[a-z-]+:[^\]\s]+)\]/g },
 ];
 
 function fichiers(chemin) {

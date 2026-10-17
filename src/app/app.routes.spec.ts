@@ -10,6 +10,7 @@ import { enregistrerSession, jetonFactice, UTILISATEURS } from './core/auth/sess
 import { Role } from './core/models';
 import { TitreStrategy } from './core/titre.strategy';
 import { NotificationService } from './shared/ui';
+import { donneesExemple, fausseApi } from './testing/fausse-api';
 
 describe('Application : routes, accès et authentification', () => {
   let fixture: ComponentFixture<App>;
@@ -21,11 +22,13 @@ describe('Application : routes, accès et authentification', () => {
     if (role) {
       enregistrerSession(role);
     }
+    // Un article au panier : /commande n'est accessible qu'avec un panier non vide.
+    localStorage.setItem('flowering.panier', JSON.stringify([{ produitId: 1, quantite: 1 }]));
     TestBed.configureTestingModule({
       imports: [App],
       providers: [
         provideRouter(routes),
-        provideHttpClient(withInterceptors([jetonInterceptor])),
+        provideHttpClient(withInterceptors([jetonInterceptor, fausseApi(donneesExemple())])),
         provideHttpClientTesting(),
         { provide: TitleStrategy, useClass: TitreStrategy },
       ],
@@ -144,7 +147,7 @@ describe('Application : routes, accès et authentification', () => {
       demarrer();
       const element = await naviguer('/catalogue');
       expect(liensNavigation(element)).toEqual(['Boutique', 'Nos artisans']);
-      expect(element.querySelector('header a[aria-label="Panier"]')).not.toBeNull();
+      expect(element.querySelector('header button[data-cible-panier]')?.getAttribute('aria-label')).toBe('Panier, 1 article');
       expect(element.querySelector('header')!.textContent).toContain('Connexion');
     });
 
@@ -361,7 +364,7 @@ describe('Application : routes, accès et authentification', () => {
       await stabiliser();
       expect(router.url).toBe('/catalogue');
       expect(fixture.nativeElement.querySelector('header').textContent).toContain('Connexion');
-      expect(localStorage.length).toBe(0);
+      expect(localStorage.getItem('flowering.session')).toBeNull();
     });
   });
 });
